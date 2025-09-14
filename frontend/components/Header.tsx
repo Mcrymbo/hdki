@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { useAuth } from '@/contexts/AuthContext';
+import { Menu, X, User, LogOut, Settings } from "lucide-react";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, isAuthenticated, isAdmin, logout } = useAuth();
 
   const navigation = [
     { name: "Home", href: "/" },
@@ -47,6 +49,43 @@ export default function Header() {
             ))}
           </nav>
 
+          {/* Auth Section */}
+          <div className="hidden lg:flex items-center space-x-4">
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-4">
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    className="text-gray-700 hover:text-hdki-red px-3 py-2 text-sm font-medium transition-colors duration-200"
+                  >
+                    Admin
+                  </Link>
+                )}
+                <Link
+                  href="/auth/profile"
+                  className="flex items-center text-gray-700 hover:text-hdki-red px-3 py-2 text-sm font-medium transition-colors duration-200"
+                >
+                  <User className="h-4 w-4 mr-1" />
+                  {user?.first_name || user?.username}
+                </Link>
+                <button
+                  onClick={logout}
+                  className="flex items-center text-gray-700 hover:text-hdki-red px-3 py-2 text-sm font-medium transition-colors duration-200"
+                >
+                  <LogOut className="h-4 w-4 mr-1" />
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/auth/login"
+                className="bg-hdki-red hover:bg-hdki-red-dark text-white px-4 py-2 text-sm font-medium transition-colors duration-200"
+              >
+                Login
+              </Link>
+            )}
+          </div>
+
           {/* Mobile menu button */}
           <div className="lg:hidden">
             <button
@@ -76,6 +115,49 @@ export default function Header() {
                   {item.name}
                 </Link>
               ))}
+              
+              {/* Mobile Auth Section */}
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                {isAuthenticated ? (
+                  <div className="space-y-2">
+                    {isAdmin && (
+                      <Link
+                        href="/admin"
+                        className="text-gray-700 hover:text-hdki-red block px-3 py-2 text-base font-medium transition-colors duration-200"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Admin Dashboard
+                      </Link>
+                    )}
+                    <Link
+                      href="/auth/profile"
+                      className="flex items-center text-gray-700 hover:text-hdki-red px-3 py-2 text-base font-medium transition-colors duration-200"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      Profile
+                    </Link>
+                    <button
+                      onClick={() => {
+                        logout();
+                        setIsMenuOpen(false);
+                      }}
+                      className="flex items-center text-gray-700 hover:text-hdki-red px-3 py-2 text-base font-medium transition-colors duration-200 w-full text-left"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    href="/auth/login"
+                    className="bg-hdki-red hover:bg-hdki-red-dark text-white block px-3 py-2 text-base font-medium transition-colors duration-200 text-center"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         )}

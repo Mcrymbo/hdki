@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
+import { useMutation } from '@apollo/client';
+import { CREATE_CONTACT_MESSAGE } from '@/lib/graphql/mutations';
 import Layout from "@/components/Layout";
 import Link from "next/link";
 import { MapPin, Phone, Mail, Clock, Send, ArrowRight } from "lucide-react";
-import { useState } from "react";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -17,6 +19,9 @@ export default function Contact() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState("");
+  const [error, setError] = useState("");
+
+  const [createContactMessage] = useMutation(CREATE_CONTACT_MESSAGE);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -29,22 +34,33 @@ export default function Contact() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError("");
     
     try {
-      // In a real implementation, this would send to your backend
-      // For now, we'll simulate the submission
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setSubmitStatus("success");
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        subject: "",
-        message: "",
-        interest: ""
+      const { data } = await createContactMessage({
+        variables: {
+          name: formData.name,
+          email: formData.email,
+          message: `${formData.subject ? `Subject: ${formData.subject}\n\n` : ''}${formData.message}${formData.interest ? `\n\nInterest: ${formData.interest}` : ''}${formData.phone ? `\nPhone: ${formData.phone}` : ''}`
+        }
       });
-    } catch (error) {
+
+      if (data?.createContactMessage?.success) {
+        setSubmitStatus("success");
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          subject: "",
+          message: "",
+          interest: ""
+        });
+      } else {
+        setError(data?.createContactMessage?.message || 'Failed to send message');
+        setSubmitStatus("error");
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to send message. Please try again.');
       setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);
@@ -151,9 +167,9 @@ export default function Contact() {
                 </div>
               )}
               
-              {submitStatus === "error" && (
+              {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-                  Sorry, there was an error sending your message. Please try again.
+                  {error}
                 </div>
               )}
               
