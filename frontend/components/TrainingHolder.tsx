@@ -99,12 +99,12 @@ export default function TrainingSessions() {
               alt={trainingImages[0].alt}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+            {/* <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
               <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center text-white">
                 <h3 className="text-xl font-semibold mb-2">{trainingImages[0].title}</h3>
                 <p className="text-sm">{trainingImages[0].location}</p>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Medium images - span 3 columns each */}
@@ -117,12 +117,12 @@ export default function TrainingSessions() {
               alt={trainingImages[1].alt}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+            {/* <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
               <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center text-white">
                 <h3 className="text-lg font-semibold mb-1">{trainingImages[1].title}</h3>
                 <p className="text-xs">{trainingImages[1].location}</p>
               </div>
-            </div>
+            </div> */}
           </div>
 
           <div 
@@ -134,12 +134,12 @@ export default function TrainingSessions() {
               alt={trainingImages[2].alt}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+            {/* <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
               <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center text-white">
                 <h3 className="text-lg font-semibold mb-1">{trainingImages[2].title}</h3>
                 <p className="text-xs">{trainingImages[2].location}</p>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Small images - span 2 columns each, 3 in a row */}
@@ -152,11 +152,11 @@ export default function TrainingSessions() {
               alt={trainingImages[3].alt}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center text-white">
+            {/* <div className="absolute inset-0 bg-black bg-opacity-50 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+              <div className="opacity-80 group-hover:opacity-100 transition-opacity duration-300 text-center text-white">
                 <h3 className="text-sm font-semibold">{trainingImages[3].title}</h3>
               </div>
-            </div>
+            </div> */}
           </div>
 
           <div 
@@ -168,11 +168,11 @@ export default function TrainingSessions() {
               alt={trainingImages[4].alt}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+            {/* <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
               <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center text-white">
                 <h3 className="text-sm font-semibold">{trainingImages[4].title}</h3>
               </div>
-            </div>
+            </div> */}
           </div>
 
           <div 
@@ -184,11 +184,11 @@ export default function TrainingSessions() {
               alt={trainingImages[5].alt}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+            {/* <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
               <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center text-white">
                 <h3 className="text-sm font-semibold">{trainingImages[5].title}</h3>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* More medium images */}
@@ -201,12 +201,12 @@ export default function TrainingSessions() {
               alt={trainingImages[6].alt}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+            {/* <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
               <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center text-white">
                 <h3 className="text-lg font-semibold mb-1">{trainingImages[6].title}</h3>
                 <p className="text-xs">{trainingImages[6].location}</p>
               </div>
-            </div>
+            </div> */}
           </div>
 
           <div 
@@ -218,12 +218,12 @@ export default function TrainingSessions() {
               alt={trainingImages[7].alt}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+            {/* <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
               <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center text-white">
                 <h3 className="text-lg font-semibold mb-1">{trainingImages[7].title}</h3>
                 <p className="text-xs">{trainingImages[7].location}</p>
               </div>
-            </div>
+            </div> */}
           </div>
 
           <div 
@@ -235,12 +235,12 @@ export default function TrainingSessions() {
               alt={trainingImages[8].alt}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+            {/* <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
               <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center text-white">
                 <h3 className="text-lg font-semibold mb-1">{trainingImages[8].title}</h3>
                 <p className="text-xs">{trainingImages[8].location}</p>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
 

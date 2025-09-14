@@ -9,13 +9,13 @@ export default function Header() {
 
   const navigation = [
     { name: "Home", href: "/" },
-    { name: "About", href: "/about" },
-    { name: "Karate Adventures", href: "/karate-adventures" },
+    { name: "About", href: "/content/about" },
+    { name: "Karate Adventures", href: "/content/karate-adventures" },
     { name: "Dojo Locations", href: "/dojo-locations" },
-    { name: "Instructors", href: "/instructors" },
-    { name: "Events", href: "/events" },
+    { name: "Instructors", href: "/content/instructors" },
+    { name: "Events", href: "/content/events" },
     { name: "News", href: "/news" },
-    { name: "Gallery", href: "/gallery" },
+    { name: "Gallery", href: "/content/gallery" },
     { name: "Contact Us", href: "/contact" },
   ];
 
