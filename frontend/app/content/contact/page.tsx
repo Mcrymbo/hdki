@@ -1,3 +1,5 @@
+"use client";
+
 import Layout from "@/components/Layout";
 import Link from "next/link";
 import { MapPin, Phone, Mail, Clock, Send, ArrowRight } from "lucide-react";

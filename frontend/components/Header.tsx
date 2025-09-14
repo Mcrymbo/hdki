@@ -11,12 +11,12 @@ export default function Header() {
     { name: "Home", href: "/" },
     { name: "About", href: "/content/about" },
     { name: "Karate Adventures", href: "/content/karate-adventures" },
-    { name: "Dojo Locations", href: "/dojo-locations" },
+    { name: "Dojo Locations", href: "/content/dojo-locations" },
     { name: "Instructors", href: "/content/instructors" },
-    { name: "Events", href: "/content/events" },
-    { name: "News", href: "/news" },
+    { name: "Events", href: "/activities/events" },
+    { name: "News", href: "/activities/news" },
     { name: "Gallery", href: "/content/gallery" },
-    { name: "Contact Us", href: "/contact" },
+    { name: "Contact Us", href: "/content/contact" },
   ];
 
   return (
