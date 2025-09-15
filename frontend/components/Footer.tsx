@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Mail, Phone, MapPin, Facebook, Instagram, Twitter } from "lucide-react";
+import Image from "next/image";
+import logo1 from "@/assets/logo/logo1.png";
 
 export default function Footer() {
   return (
@@ -9,11 +11,7 @@ export default function Footer() {
           {/* About HDKI Kenya */}
           <div>
             <div className="flex items-center mb-4">
-              <div className="w-10 h-10 bg-hdki-red border-2 border-hdki-red flex items-center justify-center mr-3">
-                <span className="text-white font-bold text-sm">
-                  HD<br />KI
-                </span>
-              </div>
+              <Image src={logo1} alt="HDKI Kenya" width={60} height={60} className="w-16 h-16 mr-3 -mb-3" />
               <h3 className="text-lg font-semibold">HDKI Kenya</h3>
             </div>
             <p className="text-gray-300 text-sm leading-relaxed">
@@ -41,7 +39,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/content/events" className="text-gray-300 hover:text-hdki-red transition-colors duration-200 text-sm">
+                <Link href="/activities/events" className="text-gray-300 hover:text-hdki-red transition-colors duration-200 text-sm">
                   Upcoming Events
                 </Link>
               </li>

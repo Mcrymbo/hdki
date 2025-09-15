@@ -205,7 +205,7 @@ export default function Index() {
               Contact Us Today
             </Link>
             <Link
-              href="/content/events"
+              href="/activities/events"
               className="border-2 border-white text-white hover:bg-white hover:text-black px-8 py-4 text-lg font-semibold transition-all duration-300"
             >
               View Upcoming Events
