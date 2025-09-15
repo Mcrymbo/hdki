@@ -17,8 +17,8 @@ export default function Header() {
       label: "About",
       items: [
         { name: "About Us", href: "/content/about" },
-        { name: "Dojo Locations", href: "/content/dojo-locations" },
-        { name: "Instructors", href: "/content/instructors" },
+        { name: "Dojo Locations", href: "/dojos" },
+        { name: "Instructors", href: "/instructors" },
       ],
     },
     {
@@ -26,13 +26,13 @@ export default function Header() {
       items: [
         { name: "Events", href: "/activities/events" },
         { name: "News", href: "/activities/news" },
-        { name: "Karate Adventures", href: "/content/karate-adventures" },
+        { name: "Karate Adventures", href: "/adventures" },
       ],
     },
     {
       label: "Resources",
       items: [
-        { name: "Gallery", href: "/content/gallery" },
+        { name: "Gallery", href: "/gallery" },
         { name: "Contact Us", href: "/content/contact" },
       ],
     },

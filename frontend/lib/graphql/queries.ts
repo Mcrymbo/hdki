@@ -143,3 +143,118 @@ export const GET_CONTACT_MESSAGES = gql`
   }
 `;
 
+// Content queries
+export const GET_DOJO_LOCATIONS = gql`
+  query GetDojoLocations {
+    dojoLocations {
+      id
+      name
+      address
+      city
+      country
+      mapLink
+      description
+      coverImage
+    }
+  }
+`;
+
+export const GET_DOJO_LOCATION = gql`
+  query GetDojoLocation($id: ID!) {
+    dojoLocation(id: $id) {
+      id
+      name
+      address
+      city
+      country
+      mapLink
+      description
+      coverImage
+      instructors {
+        id
+        name
+        rank
+        photo
+      }
+    }
+  }
+`;
+
+export const GET_GALLERY_ITEMS = gql`
+  query GetGalleryItems {
+    galleryItems {
+      id
+      title
+      image
+      description
+      uploadedAt
+    }
+  }
+`;
+
+export const GET_INSTRUCTORS = gql`
+  query GetInstructors {
+    instructors {
+      id
+      name
+      rank
+      bio
+      photo
+      dojoLocation {
+        id
+        name
+        city
+        country
+      }
+    }
+  }
+`;
+
+export const GET_INSTRUCTOR = gql`
+  query GetInstructor($id: ID!) {
+    instructor(id: $id) {
+      id
+      name
+      rank
+      bio
+      photo
+      dojoLocation {
+        id
+        name
+        address
+        city
+        country
+        mapLink
+      }
+    }
+  }
+`;
+
+export const GET_KARATE_ADVENTURES = gql`
+  query GetKarateAdventures {
+    karateAdventures {
+      id
+      title
+      description
+      startDate
+      endDate
+      location
+      coverImage
+    }
+  }
+`;
+
+export const GET_KARATE_ADVENTURE = gql`
+  query GetKarateAdventure($id: ID!) {
+    karateAdventure(id: $id) {
+      id
+      title
+      description
+      startDate
+      endDate
+      location
+      coverImage
+    }
+  }
+`;
+

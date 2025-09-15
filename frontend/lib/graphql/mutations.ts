@@ -447,3 +447,214 @@ export const CREATE_CONTACT_MESSAGE = gql`
   }
 `;
 
+// Content mutations (admin-only)
+export const CREATE_DOJO_LOCATION = gql`
+  mutation CreateDojoLocation(
+    $name: String!
+    $address: String!
+    $city: String!
+    $country: String!
+    $mapLink: String
+    $description: String
+    $coverImage: String
+  ) {
+    createDojoLocation: createDojoLocation(
+      name: $name
+      address: $address
+      city: $city
+      country: $country
+      mapLink: $mapLink
+      description: $description
+      coverImage: $coverImage
+    ) {
+      id
+      name
+      address
+      city
+      country
+      mapLink
+      description
+      coverImage
+    }
+  }
+`;
+
+export const UPDATE_DOJO_LOCATION = gql`
+  mutation UpdateDojoLocation(
+    $id: ID!
+    $name: String
+    $address: String
+    $city: String
+    $country: String
+    $mapLink: String
+    $description: String
+    $coverImage: String
+  ) {
+    updateDojoLocation: updateDojoLocation(
+      id: $id
+      name: $name
+      address: $address
+      city: $city
+      country: $country
+      mapLink: $mapLink
+      description: $description
+      coverImage: $coverImage
+    ) {
+      id
+      name
+      address
+      city
+      country
+      mapLink
+      description
+      coverImage
+    }
+  }
+`;
+
+export const DELETE_DOJO_LOCATION = gql`
+  mutation DeleteDojoLocation($id: ID!) {
+    deleteDojoLocation(id: $id)
+  }
+`;
+
+export const CREATE_GALLERY_ITEM = gql`
+  mutation CreateGalleryItem($title: String!, $image: String!, $description: String) {
+    createGalleryItem: createGalleryItem(title: $title, image: $image, description: $description) {
+      id
+      title
+      image
+      description
+      uploadedAt
+    }
+  }
+`;
+
+export const DELETE_GALLERY_ITEM = gql`
+  mutation DeleteGalleryItem($id: ID!) {
+    deleteGalleryItem(id: $id)
+  }
+`;
+
+export const CREATE_INSTRUCTOR = gql`
+  mutation CreateInstructor(
+    $name: String!
+    $rank: String!
+    $bio: String
+    $photo: String
+    $dojoLocationId: ID!
+  ) {
+    createInstructor: createInstructor(
+      name: $name
+      rank: $rank
+      bio: $bio
+      photo: $photo
+      dojoLocationId: $dojoLocationId
+    ) {
+      id
+      name
+      rank
+      bio
+      photo
+      dojoLocation { id name }
+    }
+  }
+`;
+
+export const UPDATE_INSTRUCTOR = gql`
+  mutation UpdateInstructor(
+    $id: ID!
+    $name: String
+    $rank: String
+    $bio: String
+    $photo: String
+    $dojoLocationId: ID
+  ) {
+    updateInstructor: updateInstructor(
+      id: $id
+      name: $name
+      rank: $rank
+      bio: $bio
+      photo: $photo
+      dojoLocationId: $dojoLocationId
+    ) {
+      id
+      name
+      rank
+      bio
+      photo
+      dojoLocation { id name }
+    }
+  }
+`;
+
+export const DELETE_INSTRUCTOR = gql`
+  mutation DeleteInstructor($id: ID!) {
+    deleteInstructor(id: $id)
+  }
+`;
+
+export const CREATE_KARATE_ADVENTURE = gql`
+  mutation CreateKarateAdventure(
+    $title: String!
+    $description: String!
+    $startDate: DateTime!
+    $endDate: DateTime!
+    $location: String!
+    $coverImage: String
+  ) {
+    createKarateAdventure: createKarateAdventure(
+      title: $title
+      description: $description
+      startDate: $startDate
+      endDate: $endDate
+      location: $location
+      coverImage: $coverImage
+    ) {
+      id
+      title
+      description
+      startDate
+      endDate
+      location
+      coverImage
+    }
+  }
+`;
+
+export const UPDATE_KARATE_ADVENTURE = gql`
+  mutation UpdateKarateAdventure(
+    $id: ID!
+    $title: String
+    $description: String
+    $startDate: DateTime
+    $endDate: DateTime
+    $location: String
+    $coverImage: String
+  ) {
+    updateKarateAdventure: updateKarateAdventure(
+      id: $id
+      title: $title
+      description: $description
+      startDate: $startDate
+      endDate: $endDate
+      location: $location
+      coverImage: $coverImage
+    ) {
+      id
+      title
+      description
+      startDate
+      endDate
+      location
+      coverImage
+    }
+  }
+`;
+
+export const DELETE_KARATE_ADVENTURE = gql`
+  mutation DeleteKarateAdventure($id: ID!) {
+    deleteKarateAdventure(id: $id)
+  }
+`;
+

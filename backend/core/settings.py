@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'apps.events',
     'apps.contact',
     'apps.users',
+    'apps.content',
 ]
 
 MIDDLEWARE = [

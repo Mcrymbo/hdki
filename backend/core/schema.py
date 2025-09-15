@@ -9,6 +9,7 @@ from django.utils import timezone
 from apps.news.models import News
 from apps.events.models import Event, EventRegistration
 from apps.contact.models import ContactMessage
+from apps.content.models import DojoLocation as DojoLocationModel, Gallery as GalleryModel, Instructor as InstructorModel, KarateAdventure as KarateAdventureModel
 import graphql_jwt
 import uuid
 
@@ -59,6 +60,62 @@ class ContactMessageType(DjangoObjectType):
         fields = ('id', 'name', 'email', 'message', 'created_at', 'is_read')
 
 
+# New Content Types
+class DojoLocationType(DjangoObjectType):
+    cover_image = graphene.String()
+    instructors = graphene.List(lambda: InstructorType)
+    class Meta:
+        model = DojoLocationModel
+        fields = ('id', 'name', 'address', 'city', 'country', 'map_link', 'description', 'cover_image')
+
+    def resolve_cover_image(self, info):
+        if self.cover_image:
+            request = info.context
+            return request.build_absolute_uri(self.cover_image.url)
+        return None
+
+    def resolve_instructors(self, info):
+        return self.instructors.all()
+
+
+class GalleryType(DjangoObjectType):
+    image = graphene.String()
+    class Meta:
+        model = GalleryModel
+        fields = ('id', 'title', 'image', 'description', 'uploaded_at')
+
+    def resolve_image(self, info):
+        if self.image:
+            request = info.context
+            return request.build_absolute_uri(self.image.url)
+        return None
+
+
+class InstructorType(DjangoObjectType):
+    photo = graphene.String()
+    class Meta:
+        model = InstructorModel
+        fields = ('id', 'name', 'rank', 'bio', 'photo', 'dojo_location')
+
+    def resolve_photo(self, info):
+        if self.photo:
+            request = info.context
+            return request.build_absolute_uri(self.photo.url)
+        return None
+
+
+class KarateAdventureType(DjangoObjectType):
+    cover_image = graphene.String()
+    class Meta:
+        model = KarateAdventureModel
+        fields = ('id', 'title', 'description', 'start_date', 'end_date', 'location', 'cover_image')
+
+    def resolve_cover_image(self, info):
+        if self.cover_image:
+            request = info.context
+            return request.build_absolute_uri(self.cover_image.url)
+        return None
+
 # Queries
 class Query(graphene.ObjectType):
     # User queries
@@ -77,6 +134,15 @@ class Query(graphene.ObjectType):
 
     # Contact queries
     contact_messages = graphene.List(ContactMessageType)
+
+    # Content queries (public)
+    dojo_locations = graphene.List(DojoLocationType)
+    dojo_location = graphene.Field(DojoLocationType, id=graphene.ID(required=True))
+    gallery_items = graphene.List(GalleryType)
+    instructors = graphene.List(InstructorType)
+    instructor = graphene.Field(InstructorType, id=graphene.ID(required=True))
+    karate_adventures = graphene.List(KarateAdventureType)
+    karate_adventure = graphene.Field(KarateAdventureType, id=graphene.ID(required=True))
 
     def resolve_me(self, info):
         user = info.context.user
@@ -119,6 +185,28 @@ class Query(graphene.ObjectType):
         if user.is_authenticated and user.is_admin:
             return ContactMessage.objects.all()
         return None
+
+    # Content resolvers
+    def resolve_dojo_locations(self, info):
+        return DojoLocationModel.objects.all()
+
+    def resolve_dojo_location(self, info, id):
+        return DojoLocationModel.objects.get(id=id)
+
+    def resolve_gallery_items(self, info):
+        return GalleryModel.objects.order_by('-uploaded_at')
+
+    def resolve_instructors(self, info):
+        return InstructorModel.objects.select_related('dojo_location').all()
+
+    def resolve_instructor(self, info, id):
+        return InstructorModel.objects.get(id=id)
+
+    def resolve_karate_adventures(self, info):
+        return KarateAdventureModel.objects.order_by('-start_date')
+
+    def resolve_karate_adventure(self, info, id):
+        return KarateAdventureModel.objects.get(id=id)
 
 
 # Authentication Response Types
@@ -707,6 +795,209 @@ class CreateContactMessage(graphene.Mutation):
             return CreateContactMessage(success=False, message=str(e))
 
 
+class CreateDojoLocation(graphene.Mutation):
+    class Arguments:
+        name = graphene.String(required=True)
+        address = graphene.String(required=True)
+        city = graphene.String(required=True)
+        country = graphene.String(required=True)
+        map_link = graphene.String()
+        description = graphene.String()
+        cover_image = graphene.String()
+
+    dojo_location = graphene.Field(DojoLocationType)
+
+    def mutate(self, info, **kwargs):
+        user = info.context.user
+        if not user.is_authenticated or not user.is_admin:
+            raise Exception("Only admins can create dojo locations")
+        obj = DojoLocationModel.objects.create(**{k: v for k, v in kwargs.items() if v is not None})
+        return CreateDojoLocation(dojo_location=obj)
+
+
+class UpdateDojoLocation(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+        name = graphene.String()
+        address = graphene.String()
+        city = graphene.String()
+        country = graphene.String()
+        map_link = graphene.String()
+        description = graphene.String()
+        cover_image = graphene.String()
+
+    dojo_location = graphene.Field(DojoLocationType)
+
+    def mutate(self, info, id, **kwargs):
+        user = info.context.user
+        if not user.is_authenticated or not user.is_admin:
+            raise Exception("Only admins can update dojo locations")
+        obj = DojoLocationModel.objects.get(id=id)
+        for k, v in kwargs.items():
+            if v is not None:
+                setattr(obj, k, v)
+        obj.save()
+        return UpdateDojoLocation(dojo_location=obj)
+
+
+class DeleteDojoLocation(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+
+    ok = graphene.Boolean()
+
+    def mutate(self, info, id):
+        user = info.context.user
+        if not user.is_authenticated or not user.is_admin:
+            raise Exception("Only admins can delete dojo locations")
+        DojoLocationModel.objects.filter(id=id).delete()
+        return DeleteDojoLocation(ok=True)
+
+
+class CreateGalleryItem(graphene.Mutation):
+    class Arguments:
+        title = graphene.String(required=True)
+        image = graphene.String(required=True)
+        description = graphene.String()
+
+    gallery = graphene.Field(GalleryType)
+
+    def mutate(self, info, title, image, description=None):
+        user = info.context.user
+        if not user.is_authenticated or not user.is_admin:
+            raise Exception("Only admins can create gallery items")
+        obj = GalleryModel.objects.create(title=title, image=image, description=description or "")
+        return CreateGalleryItem(gallery=obj)
+
+
+class DeleteGalleryItem(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+
+    ok = graphene.Boolean()
+
+    def mutate(self, info, id):
+        user = info.context.user
+        if not user.is_authenticated or not user.is_admin:
+            raise Exception("Only admins can delete gallery items")
+        GalleryModel.objects.filter(id=id).delete()
+        return DeleteGalleryItem(ok=True)
+
+
+class CreateInstructor(graphene.Mutation):
+    class Arguments:
+        name = graphene.String(required=True)
+        rank = graphene.String(required=True)
+        bio = graphene.String()
+        photo = graphene.String()
+        dojo_location_id = graphene.ID(required=True)
+
+    instructor = graphene.Field(InstructorType)
+
+    def mutate(self, info, name, rank, dojo_location_id, bio=None, photo=None):
+        user = info.context.user
+        if not user.is_authenticated or not user.is_admin:
+            raise Exception("Only admins can create instructors")
+        dojo = DojoLocationModel.objects.get(id=dojo_location_id)
+        obj = InstructorModel.objects.create(name=name, rank=rank, bio=bio or "", photo=photo, dojo_location=dojo)
+        return CreateInstructor(instructor=obj)
+
+
+class UpdateInstructor(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+        name = graphene.String()
+        rank = graphene.String()
+        bio = graphene.String()
+        photo = graphene.String()
+        dojo_location_id = graphene.ID()
+
+    instructor = graphene.Field(InstructorType)
+
+    def mutate(self, info, id, dojo_location_id=None, **kwargs):
+        user = info.context.user
+        if not user.is_authenticated or not user.is_admin:
+            raise Exception("Only admins can update instructors")
+        obj = InstructorModel.objects.get(id=id)
+        if dojo_location_id is not None:
+            obj.dojo_location = DojoLocationModel.objects.get(id=dojo_location_id)
+        for k, v in kwargs.items():
+            if k in ["name", "rank", "bio", "photo"] and v is not None:
+                setattr(obj, k, v)
+        obj.save()
+        return UpdateInstructor(instructor=obj)
+
+
+class DeleteInstructor(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+
+    ok = graphene.Boolean()
+
+    def mutate(self, info, id):
+        user = info.context.user
+        if not user.is_authenticated or not user.is_admin:
+            raise Exception("Only admins can delete instructors")
+        InstructorModel.objects.filter(id=id).delete()
+        return DeleteInstructor(ok=True)
+
+
+class CreateKarateAdventure(graphene.Mutation):
+    class Arguments:
+        title = graphene.String(required=True)
+        description = graphene.String(required=True)
+        start_date = graphene.DateTime(required=True)
+        end_date = graphene.DateTime(required=True)
+        location = graphene.String(required=True)
+        cover_image = graphene.String()
+
+    adventure = graphene.Field(KarateAdventureType)
+
+    def mutate(self, info, **kwargs):
+        user = info.context.user
+        if not user.is_authenticated or not user.is_admin:
+            raise Exception("Only admins can create adventures")
+        obj = KarateAdventureModel.objects.create(**kwargs)
+        return CreateKarateAdventure(adventure=obj)
+
+
+class UpdateKarateAdventure(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+        title = graphene.String()
+        description = graphene.String()
+        start_date = graphene.DateTime()
+        end_date = graphene.DateTime()
+        location = graphene.String()
+        cover_image = graphene.String()
+
+    adventure = graphene.Field(KarateAdventureType)
+
+    def mutate(self, info, id, **kwargs):
+        user = info.context.user
+        if not user.is_authenticated or not user.is_admin:
+            raise Exception("Only admins can update adventures")
+        obj = KarateAdventureModel.objects.get(id=id)
+        for k, v in kwargs.items():
+            if v is not None:
+                setattr(obj, k, v)
+        obj.save()
+        return UpdateKarateAdventure(adventure=obj)
+
+
+class DeleteKarateAdventure(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+
+    ok = graphene.Boolean()
+
+    def mutate(self, info, id):
+        user = info.context.user
+        if not user.is_authenticated or not user.is_admin:
+            raise Exception("Only admins can delete adventures")
+        KarateAdventureModel.objects.filter(id=id).delete()
+        return DeleteKarateAdventure(ok=True)
+
 class Mutation(graphene.ObjectType):
     # Authentication mutations
     register_user = RegisterUser.Field()
@@ -739,6 +1030,19 @@ class Mutation(graphene.ObjectType):
 
     # Contact mutations
     create_contact_message = CreateContactMessage.Field()
+
+    # Content mutations (admin only)
+    create_dojo_location = CreateDojoLocation.Field()
+    update_dojo_location = UpdateDojoLocation.Field()
+    delete_dojo_location = DeleteDojoLocation.Field()
+    create_gallery_item = CreateGalleryItem.Field()
+    delete_gallery_item = DeleteGalleryItem.Field()
+    create_instructor = CreateInstructor.Field()
+    update_instructor = UpdateInstructor.Field()
+    delete_instructor = DeleteInstructor.Field()
+    create_karate_adventure = CreateKarateAdventure.Field()
+    update_karate_adventure = UpdateKarateAdventure.Field()
+    delete_karate_adventure = DeleteKarateAdventure.Field()
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
