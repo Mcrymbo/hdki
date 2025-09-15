@@ -141,11 +141,11 @@ export default function AdminNews() {
                     <tr key={article.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          {article.cover_image && (
+                          {article.coverImage && (
                             <div className="flex-shrink-0 h-12 w-12">
                               <img
                                 className="h-12 w-12 rounded-lg object-cover"
-                                src={article.cover_image}
+                                src={article.coverImage}
                                 alt={article.title}
                               />
                             </div>
@@ -175,17 +175,17 @@ export default function AdminNews() {
                         <div className="flex items-center">
                           <Calendar className="h-4 w-4 text-gray-400 mr-2" />
                           <div className="text-sm text-gray-900">
-                            {new Date(article.published_at).toLocaleDateString()}
+                            {new Date(article.publishedAt).toLocaleDateString()}
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          article.is_published 
+                          article.isPublished 
                             ? 'bg-green-100 text-green-800' 
                             : 'bg-yellow-100 text-yellow-800'
                         }`}>
-                          {article.is_published ? 'Published' : 'Draft'}
+                          {article.isPublished ? 'Published' : 'Draft'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

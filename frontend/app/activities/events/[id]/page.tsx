@@ -100,11 +100,11 @@ export default function EventDetail() {
                   </span>
                 </div>
 
-                {event.max_participants && (
+                {event.maxParticipants && (
                   <div className="flex items-center text-lg text-gray-600">
                     <Users className="h-5 w-5 mr-3 text-hdki-red" />
                     <span>
-                      {event.current_registrations || 0} / {event.max_participants} registered
+                      {event.currentRegistrations || 0} / {event.maxParticipants} registered
                     </span>
                   </div>
                 )}
@@ -126,10 +126,10 @@ export default function EventDetail() {
               </div>
             </div>
 
-            {event.cover_image && (
+            {event.coverImage && (
               <div className="order-first lg:order-last">
                 <img
-                  src={event.cover_image}
+                  src={event.coverImage}
                   alt={event.title}
                   className="w-full h-64 lg:h-96 object-cover rounded-lg shadow-lg"
                 />
@@ -200,12 +200,12 @@ export default function EventDetail() {
                     </div>
                   </div>
 
-                  {event.max_participants && (
+                  {event.maxParticipants && (
                     <div className="flex items-center text-sm text-gray-600">
                       <Users className="h-4 w-4 mr-2 text-hdki-red" />
                       <div>
                         <p className="font-medium">Capacity</p>
-                        <p>{event.current_registrations || 0} / {event.max_participants}</p>
+                        <p>{event.currentRegistrations || 0} / {event.maxParticipants}</p>
                       </div>
                     </div>
                   )}

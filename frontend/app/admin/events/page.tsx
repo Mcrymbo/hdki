@@ -116,10 +116,10 @@ export default function AdminEvents() {
           ) : (
             events.map((event: any) => (
               <div key={event.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                {event.cover_image && (
+                {event.coverImage && (
                   <div className="aspect-w-16 aspect-h-9">
                     <img
-                      src={event.cover_image}
+                      src={event.coverImage}
                         alt={event.title}
                       className="w-full h-48 object-cover"
                     />
@@ -156,11 +156,11 @@ export default function AdminEvents() {
                       </span>
                     </div>
 
-                    {event.max_participants && (
+                    {event.maxParticipants && (
                       <div className="flex items-center text-sm text-gray-600">
                         <Users className="h-4 w-4 mr-2 text-hdki-red" />
                         <span>
-                          {event.current_registrations || 0} / {event.max_participants} registered
+                          {event.currentRegistrations || 0} / {event.maxParticipants} registered
                         </span>
                       </div>
                     )}
@@ -172,11 +172,11 @@ export default function AdminEvents() {
 
                   <div className="flex items-center justify-between">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      event.is_published 
+                      event.isPublished 
                         ? 'bg-green-100 text-green-800' 
                         : 'bg-yellow-100 text-yellow-800'
                     }`}>
-                      {event.is_published ? 'Published' : 'Draft'}
+                      {event.isPublished ? 'Published' : 'Draft'}
                     </span>
 
                     <div className="flex items-center space-x-2">

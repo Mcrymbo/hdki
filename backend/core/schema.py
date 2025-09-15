@@ -1,10 +1,16 @@
 import graphene
 from graphene_django import DjangoObjectType
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
+from django.conf import settings
+from django.utils import timezone
 from apps.news.models import News
 from apps.events.models import Event, EventRegistration
 from apps.contact.models import ContactMessage
 import graphql_jwt
+import uuid
 
 User = get_user_model()
 
@@ -17,17 +23,29 @@ class UserType(DjangoObjectType):
 
 
 class NewsType(DjangoObjectType):
+    cover_image = graphene.String()
     class Meta:
         model = News
         fields = ('id', 'title', 'content', 'cover_image', 'author', 'published_at', 'updated_at', 'is_published')
 
+    def resolve_cover_image(self, info):
+        if self.cover_image:
+            request = info.context
+            return request.build_absolute_uri(self.cover_image.url)
+        return None
 
 class EventType(DjangoObjectType):
+    cover_image = graphene.String()
     class Meta:
         model = Event
         fields = ('id', 'title', 'description', 'date', 'location', 'cover_image', 'fee', 'max_participants', 
                  'current_registrations', 'created_at', 'updated_at', 'is_published')
 
+    def resolve_cover_image(self, info):
+        if self.cover_image:
+            request = info.context
+            return request.build_absolute_uri(self.cover_image.url)
+        return None
 
 class EventRegistrationType(DjangoObjectType):
     class Meta:
@@ -103,7 +121,270 @@ class Query(graphene.ObjectType):
         return None
 
 
-# Mutations
+# Authentication Response Types
+class AuthPayload(graphene.ObjectType):
+    token = graphene.String()
+    refresh_token = graphene.String()
+    user = graphene.Field(UserType)
+
+class AuthResponse(graphene.ObjectType):
+    success = graphene.Boolean()
+    message = graphene.String()
+    payload = graphene.Field(AuthPayload)
+
+# Authentication Mutations
+class RegisterUser(graphene.Mutation):
+    class Arguments:
+        username = graphene.String(required=True)
+        email = graphene.String(required=True)
+        password = graphene.String(required=True)
+        first_name = graphene.String()
+        last_name = graphene.String()
+        phone = graphene.String()
+
+    success = graphene.Boolean()
+    message = graphene.String()
+    user = graphene.Field(UserType)
+
+    def mutate(self, info, username, email, password, first_name=None, last_name=None, phone=None):
+        try:
+            # Check if user already exists
+            if User.objects.filter(email=email).exists():
+                return RegisterUser(success=False, message="User with this email already exists")
+            
+            if User.objects.filter(username=username).exists():
+                return RegisterUser(success=False, message="User with this username already exists")
+
+            # Validate password
+            try:
+                validate_password(password)
+            except ValidationError as e:
+                return RegisterUser(success=False, message=f"Password validation failed: {', '.join(e.messages)}")
+
+            # Create user
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                first_name=first_name or '',
+                last_name=last_name or '',
+                phone=phone or '',
+                is_active=False  # Require email verification
+            )
+
+            # Send verification email (in production, you'd implement this)
+            # For now, we'll just return success
+            return RegisterUser(
+                success=True, 
+                message="User registered successfully. Please check your email to verify your account.",
+                user=user
+            )
+        except Exception as e:
+            return RegisterUser(success=False, message=str(e))
+
+class LoginUser(graphene.Mutation):
+    class Arguments:
+        username_or_email = graphene.String(required=True)
+        password = graphene.String(required=True)
+
+    success = graphene.Boolean()
+    message = graphene.String()
+    payload = graphene.Field(AuthPayload)
+
+    def mutate(self, info, username_or_email, password):
+        try:
+            # Try to find user by email or username
+            try:
+                user = User.objects.get(email=username_or_email)
+            except User.DoesNotExist:
+                try:
+                    user = User.objects.get(username=username_or_email)
+                except User.DoesNotExist:
+                    return LoginUser(success=False, message="Invalid credentials")
+
+            # Check if user is active
+            if not user.is_active:
+                return LoginUser(success=False, message="Account not activated. Please check your email for activation link.")
+
+            # Authenticate user using the model's USERNAME_FIELD (email)
+            user = authenticate(username=user.email, password=password)
+            if not user:
+                return LoginUser(success=False, message="Invalid credentials")
+
+            # Generate JWT tokens using the proper JWT settings
+            from django.conf import settings
+            import jwt
+            from datetime import datetime, timedelta
+            
+            # Create JWT payload
+            payload = {
+                'user_id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'phone': user.phone,
+                'is_admin': user.is_admin,
+                'date_joined': user.date_joined.isoformat() if user.date_joined else None,
+                'exp': datetime.utcnow() + settings.JWT_AUTH['JWT_EXPIRATION_DELTA'],
+                'iat': datetime.utcnow(),
+            }
+            
+            # Create refresh token payload
+            refresh_payload = {
+                'user_id': user.id,
+                'username': user.username,
+                'exp': datetime.utcnow() + settings.JWT_AUTH['JWT_REFRESH_EXPIRATION_DELTA'],
+                'iat': datetime.utcnow(),
+            }
+            
+            # Encode tokens
+            token = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.JWT_AUTH['JWT_ALGORITHM'])
+            refresh_token = jwt.encode(refresh_payload, settings.SECRET_KEY, algorithm=settings.JWT_AUTH['JWT_ALGORITHM'])
+
+            return LoginUser(
+                success=True,
+                message="Login successful",
+                payload=AuthPayload(token=token, refresh_token=refresh_token, user=user)
+            )
+        except Exception as e:
+            return LoginUser(success=False, message=str(e))
+
+class ActivateUser(graphene.Mutation):
+    class Arguments:
+        token = graphene.String(required=True)
+
+    success = graphene.Boolean()
+    message = graphene.String()
+    user = graphene.Field(UserType)
+
+    def mutate(self, info, token):
+        try:
+            user = User.objects.get(email_verification_token=token)
+            user.is_active = True
+            user.save()
+            return ActivateUser(success=True, message="Account activated successfully", user=user)
+        except User.DoesNotExist:
+            return ActivateUser(success=False, message="Invalid activation token")
+        except Exception as e:
+            return ActivateUser(success=False, message=str(e))
+
+class RequestPasswordReset(graphene.Mutation):
+    class Arguments:
+        email = graphene.String(required=True)
+
+    success = graphene.Boolean()
+    message = graphene.String()
+
+    def mutate(self, info, email):
+        try:
+            user = User.objects.get(email=email)
+            token = user.generate_password_reset_token()
+            
+            # In production, send email with reset link
+            # For now, we'll just return success
+            return RequestPasswordReset(
+                success=True, 
+                message="Password reset email sent. Please check your email."
+            )
+        except User.DoesNotExist:
+            return RequestPasswordReset(success=False, message="User with this email does not exist")
+        except Exception as e:
+            return RequestPasswordReset(success=False, message=str(e))
+
+class ResetPassword(graphene.Mutation):
+    class Arguments:
+        token = graphene.String(required=True)
+        new_password = graphene.String(required=True)
+
+    success = graphene.Boolean()
+    message = graphene.String()
+
+    def mutate(self, info, token, new_password):
+        try:
+            user = User.objects.get(password_reset_token=token)
+            
+            if not user.is_password_reset_token_valid(token):
+                return ResetPassword(success=False, message="Invalid or expired reset token")
+
+            # Validate new password
+            try:
+                validate_password(new_password)
+            except ValidationError as e:
+                return ResetPassword(success=False, message=f"Password validation failed: {', '.join(e.messages)}")
+
+            # Set new password
+            user.set_password(new_password)
+            user.clear_password_reset_token()
+            user.save()
+
+            return ResetPassword(success=True, message="Password reset successfully")
+        except User.DoesNotExist:
+            return ResetPassword(success=False, message="Invalid reset token")
+        except Exception as e:
+            return ResetPassword(success=False, message=str(e))
+
+class ChangePassword(graphene.Mutation):
+    class Arguments:
+        old_password = graphene.String(required=True)
+        new_password = graphene.String(required=True)
+
+    success = graphene.Boolean()
+    message = graphene.String()
+
+    def mutate(self, info, old_password, new_password):
+        user = info.context.user
+        if not user.is_authenticated:
+            return ChangePassword(success=False, message="Authentication required")
+
+        try:
+            # Verify old password
+            if not user.check_password(old_password):
+                return ChangePassword(success=False, message="Current password is incorrect")
+
+            # Validate new password
+            try:
+                validate_password(new_password)
+            except ValidationError as e:
+                return ChangePassword(success=False, message=f"Password validation failed: {', '.join(e.messages)}")
+
+            # Set new password
+            user.set_password(new_password)
+            user.save()
+
+            return ChangePassword(success=True, message="Password changed successfully")
+        except Exception as e:
+            return ChangePassword(success=False, message=str(e))
+
+class UpdateProfile(graphene.Mutation):
+    class Arguments:
+        first_name = graphene.String()
+        last_name = graphene.String()
+        phone = graphene.String()
+
+    success = graphene.Boolean()
+    message = graphene.String()
+    user = graphene.Field(UserType)
+
+    def mutate(self, info, first_name=None, last_name=None, phone=None):
+        user = info.context.user
+        if not user.is_authenticated:
+            return UpdateProfile(success=False, message="Authentication required")
+
+        try:
+            if first_name is not None:
+                user.first_name = first_name
+            if last_name is not None:
+                user.last_name = last_name
+            if phone is not None:
+                user.phone = phone
+            
+            user.save()
+            return UpdateProfile(success=True, message="Profile updated successfully", user=user)
+        except Exception as e:
+            return UpdateProfile(success=False, message=str(e))
+
+# Admin-only user management mutations
 class CreateUser(graphene.Mutation):
     class Arguments:
         username = graphene.String(required=True)
@@ -131,7 +412,8 @@ class CreateUser(graphene.Mutation):
                 first_name=first_name or '',
                 last_name=last_name or '',
                 phone=phone or '',
-                is_admin=is_admin
+                is_admin=is_admin,
+                is_active=True  # Admin-created users are active by default
             )
             return CreateUser(user=new_user, success=True, message="User created successfully")
         except Exception as e:
@@ -426,12 +708,20 @@ class CreateContactMessage(graphene.Mutation):
 
 
 class Mutation(graphene.ObjectType):
-    # Authentication
-    token_auth = graphql_jwt.ObtainJSONWebToken.Field()
+    # Authentication mutations
+    register_user = RegisterUser.Field()
+    login_user = LoginUser.Field()
+    activate_user = ActivateUser.Field()
+    request_password_reset = RequestPasswordReset.Field()
+    reset_password = ResetPassword.Field()
+    change_password = ChangePassword.Field()
+    update_profile = UpdateProfile.Field()
+    
+    # JWT token mutations
     refresh_token = graphql_jwt.Refresh.Field()
     verify_token = graphql_jwt.Verify.Field()
 
-    # User mutations
+    # Admin user management mutations
     create_user = CreateUser.Field()
     update_user = UpdateUser.Field()
     delete_user = DeleteUser.Field()
@@ -452,3 +742,4 @@ class Mutation(graphene.ObjectType):
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
+

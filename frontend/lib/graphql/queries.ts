@@ -7,11 +7,11 @@ export const GET_ME = gql`
       id
       username
       email
-      first_name
-      last_name
+      firstName
+      lastName
       phone
-      is_admin
-      date_joined
+      isAdmin
+      dateJoined
     }
   }
 `;
@@ -22,11 +22,11 @@ export const GET_USERS = gql`
       id
       username
       email
-      first_name
-      last_name
+      firstName
+      lastName
       phone
-      is_admin
-      date_joined
+      isAdmin
+      dateJoined
     }
   }
 `;
@@ -38,36 +38,36 @@ export const GET_NEWS = gql`
       id
       title
       content
-      cover_image
+      coverImage
       author {
         id
         username
-        first_name
-        last_name
+        firstName
+        lastName
       }
-      published_at
-      updated_at
-      is_published
+      publishedAt
+      updatedAt
+      isPublished
     }
   }
 `;
 
 export const GET_NEWS_ARTICLE = gql`
   query GetNewsArticle($id: ID!) {
-    news_article(id: $id) {
+    newsArticle(id: $id) {
       id
       title
       content
-      cover_image
+      coverImage
       author {
         id
         username
-        first_name
-        last_name
+        firstName
+        lastName
       }
-      published_at
-      updated_at
-      is_published
+      publishedAt
+      updatedAt
+      isPublished
     }
   }
 `;
@@ -81,13 +81,13 @@ export const GET_EVENTS = gql`
       description
       date
       location
-      cover_image
+      coverImage
       fee
-      max_participants
-      current_registrations
-      created_at
-      updated_at
-      is_published
+      maxParticipants
+      currentRegistrations
+      createdAt
+      updatedAt
+      isPublished
     }
   }
 `;
@@ -100,13 +100,13 @@ export const GET_EVENT = gql`
       description
       date
       location
-      cover_image
+      coverImage
       fee
-      max_participants
-      current_registrations
-      created_at
-      updated_at
-      is_published
+      maxParticipants
+      currentRegistrations
+      createdAt
+      updatedAt
+      isPublished
     }
   }
 `;
@@ -122,9 +122,9 @@ export const GET_MY_REGISTRATIONS = gql`
         location
       }
       status
-      additional_notes
-      created_at
-      updated_at
+      additionalNotes
+      createdAt
+      updatedAt
     }
   }
 `;
@@ -132,13 +132,14 @@ export const GET_MY_REGISTRATIONS = gql`
 // Contact queries
 export const GET_CONTACT_MESSAGES = gql`
   query GetContactMessages {
-    contact_messages {
+    contactMessages {
       id
       name
       email
       message
-      created_at
-      is_read
+      createdAt
+      isRead
     }
   }
 `;
+

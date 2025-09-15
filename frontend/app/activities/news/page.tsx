@@ -71,10 +71,10 @@ export default function News() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {newsArticles.map((article: any) => (
                 <article key={article.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                  {article.cover_image && (
+                  {article.coverImage && (
                     <div className="aspect-w-16 aspect-h-9">
                       <img
-                        src={article.cover_image}
+                        src={article.coverImage}
                         alt={article.title}
                         className="w-full h-48 object-cover"
                       />
@@ -84,8 +84,8 @@ export default function News() {
                   <div className="p-6">
                     <div className="flex items-center text-sm text-gray-500 mb-3">
                       <Calendar className="h-4 w-4 mr-2" />
-                      <time dateTime={article.published_at}>
-                        {new Date(article.published_at).toLocaleDateString('en-US', {
+                      <time dateTime={article.publishedAt}>
+                        {new Date(article.publishedAt).toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric'
@@ -100,8 +100,8 @@ export default function News() {
                     <div className="flex items-center text-sm text-gray-600 mb-4">
                       <User className="h-4 w-4 mr-2" />
                       <span>
-                        {article.author?.first_name && article.author?.last_name
-                          ? `${article.author.first_name} ${article.author.last_name}`
+                        {article.author?.firstName && article.author?.lastName
+                          ? `${article.author.firstName} ${article.author.lastName}`
                           : article.author?.username || 'HDKI Kenya'
                         }
                       </span>

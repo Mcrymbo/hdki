@@ -8,7 +8,7 @@ import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
-    username: '',
+    usernameOrEmail: '',
     password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -24,7 +24,7 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const result = await login(formData.username, formData.password);
+      const result = await login(formData.usernameOrEmail, formData.password);
       
       if (result.success) {
         router.push('/');
@@ -79,16 +79,16 @@ export default function LoginPage() {
             )}
 
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="usernameOrEmail" className="block text-sm font-medium text-gray-700">
                 Username or Email
               </label>
               <div className="mt-1">
                 <input
-                  id="username"
-                  name="username"
+                  id="usernameOrEmail"
+                  name="usernameOrEmail"
                   type="text"
                   required
-                  value={formData.username}
+                  value={formData.usernameOrEmail}
                   onChange={handleInputChange}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-hdki-red focus:border-hdki-red sm:text-sm"
                   placeholder="Enter your username or email"
@@ -137,22 +137,33 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Need help?</span>
-              </div>
-            </div>
-
-            <div className="mt-6 text-center">
+            <div className="text-center">
               <Link
-                href="/content/contact"
+                href="/auth/reset-password"
                 className="text-sm text-hdki-red hover:text-hdki-red-dark"
               >
-                Contact Support
+                Forgot your password?
               </Link>
+            </div>
+
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">New to HDKI?</span>
+                </div>
+              </div>
+
+              <div className="mt-6 text-center">
+                <Link
+                  href="/auth/register"
+                  className="text-sm text-hdki-red hover:text-hdki-red-dark"
+                >
+                  Create an account
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -160,3 +171,4 @@ export default function LoginPage() {
     </div>
   );
 }
+

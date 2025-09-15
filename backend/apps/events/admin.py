@@ -18,3 +18,4 @@ class EventRegistrationAdmin(admin.ModelAdmin):
     search_fields = ('user__email', 'user__username', 'event__title')
     ordering = ('-created_at',)
     readonly_fields = ('created_at', 'updated_at')
+

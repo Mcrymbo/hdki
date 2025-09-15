@@ -1,11 +1,131 @@
 import { gql } from '@apollo/client';
 
 // Authentication mutations
-export const LOGIN = gql`
-  mutation Login($username: String!, $password: String!) {
-    tokenAuth(username: $username, password: $password) {
-      token
-      refreshToken
+export const REGISTER_USER = gql`
+  mutation RegisterUser(
+    $username: String!
+    $email: String!
+    $password: String!
+    $first_name: String
+    $last_name: String
+    $phone: String
+  ) {
+    registerUser(
+      username: $username
+      email: $email
+      password: $password
+      first_name: $first_name
+      last_name: $last_name
+      phone: $phone
+    ) {
+      success
+      message
+      user {
+        id
+        username
+        email
+        first_name
+        last_name
+        phone
+        is_admin
+        date_joined
+      }
+    }
+  }
+`;
+
+export const LOGIN_USER = gql`
+  mutation LoginUser($usernameOrEmail: String!, $password: String!) {
+    loginUser(usernameOrEmail: $usernameOrEmail, password: $password) {
+      success
+      message
+      payload {
+        token
+        refreshToken
+        user {
+          id
+          username
+          email
+          firstName
+          lastName
+          phone
+          isAdmin
+          dateJoined
+        }
+      }
+    }
+  }
+`;
+
+export const ACTIVATE_USER = gql`
+  mutation ActivateUser($token: String!) {
+    activateUser(token: $token) {
+      success
+      message
+      user {
+        id
+        username
+        email
+        first_name
+        last_name
+        phone
+        is_admin
+        date_joined
+      }
+    }
+  }
+`;
+
+export const REQUEST_PASSWORD_RESET = gql`
+  mutation RequestPasswordReset($email: String!) {
+    requestPasswordReset(email: $email) {
+      success
+      message
+    }
+  }
+`;
+
+export const RESET_PASSWORD = gql`
+  mutation ResetPassword($token: String!, $new_password: String!) {
+    resetPassword(token: $token, new_password: $new_password) {
+      success
+      message
+    }
+  }
+`;
+
+export const CHANGE_PASSWORD = gql`
+  mutation ChangePassword($old_password: String!, $new_password: String!) {
+    changePassword(old_password: $old_password, new_password: $new_password) {
+      success
+      message
+    }
+  }
+`;
+
+export const UPDATE_PROFILE = gql`
+  mutation UpdateProfile(
+    $first_name: String
+    $last_name: String
+    $phone: String
+  ) {
+    updateProfile(
+      first_name: $first_name
+      last_name: $last_name
+      phone: $phone
+    ) {
+      success
+      message
+      user {
+        id
+        username
+        email
+        first_name
+        last_name
+        phone
+        is_admin
+        date_joined
+      }
     }
   }
 `;
@@ -68,19 +188,19 @@ export const UPDATE_USER = gql`
     $id: ID!
     $username: String
     $email: String
-    $first_name: String
-    $last_name: String
+    $firstName: String
+    $lastName: String
     $phone: String
-    $is_admin: Boolean
+    $isAdmin: Boolean
   ) {
     updateUser(
       id: $id
       username: $username
       email: $email
-      first_name: $first_name
-      last_name: $last_name
+      firstName: $firstName
+      lastName: $lastName
       phone: $phone
-      is_admin: $is_admin
+      isAdmin: $isAdmin
     ) {
       success
       message
@@ -88,11 +208,11 @@ export const UPDATE_USER = gql`
         id
         username
         email
-        first_name
-        last_name
+        firstName
+        lastName
         phone
-        is_admin
-        date_joined
+        isAdmin
+        dateJoined
       }
     }
   }
@@ -112,12 +232,12 @@ export const CREATE_NEWS = gql`
   mutation CreateNews(
     $title: String!
     $content: String!
-    $cover_image: String
+    $coverImage: String
   ) {
     createNews(
       title: $title
       content: $content
-      cover_image: $cover_image
+      coverImage: $coverImage
     ) {
       success
       message
@@ -125,14 +245,14 @@ export const CREATE_NEWS = gql`
         id
         title
         content
-        cover_image
+        coverImage
         author {
           id
           username
         }
-        published_at
-        updated_at
-        is_published
+        publishedAt
+        updatedAt
+        isPublished
       }
     }
   }
@@ -143,15 +263,15 @@ export const UPDATE_NEWS = gql`
     $id: ID!
     $title: String
     $content: String
-    $cover_image: String
-    $is_published: Boolean
+    $coverImage: String
+    $isPublished: Boolean
   ) {
     updateNews(
       id: $id
       title: $title
       content: $content
-      cover_image: $cover_image
-      is_published: $is_published
+      coverImage: $coverImage
+      isPublished: $isPublished
     ) {
       success
       message
@@ -159,14 +279,14 @@ export const UPDATE_NEWS = gql`
         id
         title
         content
-        cover_image
+        coverImage
         author {
           id
           username
         }
-        published_at
-        updated_at
-        is_published
+        publishedAt
+        updatedAt
+        isPublished
       }
     }
   }
@@ -188,18 +308,18 @@ export const CREATE_EVENT = gql`
     $description: String!
     $date: DateTime!
     $location: String!
-    $cover_image: String
+    $coverImage: String
     $fee: Decimal
-    $max_participants: Int
+    $maxParticipants: Int
   ) {
     createEvent(
       title: $title
       description: $description
       date: $date
       location: $location
-      cover_image: $cover_image
+      coverImage: $coverImage
       fee: $fee
-      max_participants: $max_participants
+      maxParticipants: $maxParticipants
     ) {
       success
       message
@@ -209,13 +329,13 @@ export const CREATE_EVENT = gql`
         description
         date
         location
-        cover_image
+        coverImage
         fee
-        max_participants
-        current_registrations
-        created_at
-        updated_at
-        is_published
+        maxParticipants
+        currentRegistrations
+        createdAt
+        updatedAt
+        isPublished
       }
     }
   }
@@ -228,10 +348,10 @@ export const UPDATE_EVENT = gql`
     $description: String
     $date: DateTime
     $location: String
-    $cover_image: String
+    $coverImage: String
     $fee: Decimal
-    $max_participants: Int
-    $is_published: Boolean
+    $maxParticipants: Int
+    $isPublished: Boolean
   ) {
     updateEvent(
       id: $id
@@ -239,10 +359,10 @@ export const UPDATE_EVENT = gql`
       description: $description
       date: $date
       location: $location
-      cover_image: $cover_image
+      coverImage: $coverImage
       fee: $fee
-      max_participants: $max_participants
-      is_published: $is_published
+      maxParticipants: $maxParticipants
+      isPublished: $isPublished
     ) {
       success
       message
@@ -252,13 +372,13 @@ export const UPDATE_EVENT = gql`
         description
         date
         location
-        cover_image
+        coverImage
         fee
-        max_participants
-        current_registrations
-        created_at
-        updated_at
-        is_published
+        maxParticipants
+        currentRegistrations
+        createdAt
+        updatedAt
+        isPublished
       }
     }
   }
@@ -275,12 +395,12 @@ export const DELETE_EVENT = gql`
 
 export const REGISTER_FOR_EVENT = gql`
   mutation RegisterForEvent(
-    $event_id: ID!
-    $additional_notes: String
+    $eventId: ID!
+    $additionalNotes: String
   ) {
     registerForEvent(
-      event_id: $event_id
-      additional_notes: $additional_notes
+      eventId: $eventId
+      additionalNotes: $additionalNotes
     ) {
       success
       message
@@ -293,9 +413,9 @@ export const REGISTER_FOR_EVENT = gql`
           location
         }
         status
-        additional_notes
-        created_at
-        updated_at
+        additionalNotes
+        createdAt
+        updatedAt
       }
     }
   }
@@ -315,14 +435,15 @@ export const CREATE_CONTACT_MESSAGE = gql`
     ) {
       success
       message
-      contact_message {
+      contactMessage {
         id
         name
         email
         message
-        created_at
-        is_read
+        createdAt
+        isRead
       }
     }
   }
 `;
+

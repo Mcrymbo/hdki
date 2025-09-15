@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useMutation } from '@apollo/client';
-import { LOGIN, REFRESH_TOKEN, VERIFY_TOKEN } from '@/lib/graphql/mutations';
+import { LOGIN_USER, REFRESH_TOKEN, VERIFY_TOKEN } from '@/lib/graphql/mutations';
 
 interface User {
   id: string;
@@ -18,7 +18,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (username: string, password: string) => Promise<{ success: boolean; message: string }>;
+  login: (usernameOrEmail: string, password: string) => Promise<{ success: boolean; message: string }>;
   logout: () => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
@@ -38,7 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const [loginMutation] = useMutation(LOGIN);
+  const [loginMutation] = useMutation(LOGIN_USER);
   const [refreshTokenMutation] = useMutation(REFRESH_TOKEN);
   const [verifyTokenMutation] = useMutation(VERIFY_TOKEN);
 
@@ -81,32 +81,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initAuth();
   }, [verifyTokenMutation]);
 
-  const login = async (username: string, password: string) => {
+  const login = async (usernameOrEmail: string, password: string) => {
     try {
       const { data } = await loginMutation({
-        variables: { username, password }
+        variables: { usernameOrEmail, password }
       });
 
-      if (data?.tokenAuth?.token) {
-        localStorage.setItem('access_token', data.tokenAuth.token);
-        localStorage.setItem('refresh_token', data.tokenAuth.refreshToken);
-        
-        // For now, we'll need to fetch user data separately
-        // In a real app, the token would contain user info
-        setUser({
-          id: '1', // This would come from the token payload
-          username,
-          email: '', // This would come from the token payload
-          first_name: '',
-          last_name: '',
-          phone: '',
-          is_admin: false,
-          date_joined: new Date().toISOString(),
-        });
+      if (data?.loginUser?.success && data?.loginUser?.payload) {
+        const { token, refreshToken, user } = data.loginUser.payload;
 
-        return { success: true, message: 'Login successful' };
+        localStorage.setItem('access_token', token);
+        if (refreshToken) {
+          localStorage.setItem('refresh_token', refreshToken);
+        }
+
+        // Map backend camelCase user to our context's snake_case User interface
+        const mappedUser: User = {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          first_name: user.firstName ?? '',
+          last_name: user.lastName ?? '',
+          phone: user.phone ?? '',
+          is_admin: user.isAdmin ?? false,
+          date_joined: user.dateJoined ?? ''
+        };
+        setUser(mappedUser);
+
+        return { success: true, message: data.loginUser.message };
       } else {
-        return { success: false, message: 'Login failed' };
+        return { success: false, message: data?.loginUser?.message || 'Login failed' };
       }
     } catch (error: any) {
       console.error('Login error:', error);
@@ -138,3 +142,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     </AuthContext.Provider>
   );
 };
+

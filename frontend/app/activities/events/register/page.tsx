@@ -76,8 +76,8 @@ export default function EventRegistration() {
       if (eventId) {
         const { data } = await registerForEvent({
           variables: {
-            event_id: eventId,
-            additional_notes: formData.additionalNotes
+            eventId: eventId,
+            additionalNotes: formData.additionalNotes
           }
         });
 
@@ -213,16 +213,16 @@ export default function EventRegistration() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="md:flex">
-              {event.cover_image && (
+              {event.coverImage && (
                 <div className="md:w-1/3">
                   <img
-                    src={event.cover_image}
+                    src={event.coverImage}
                     alt={event.title}
                     className="w-full h-48 md:h-full object-cover"
                   />
                 </div>
               )}
-              <div className={`${event.cover_image ? 'md:w-2/3' : 'w-full'} p-6`}>
+              <div className={`${event.coverImage ? 'md:w-2/3' : 'w-full'} p-6`}>
                 <h3 className="text-2xl font-semibold text-gray-900 mb-4">{event.title}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div className="flex items-center">
@@ -255,9 +255,9 @@ export default function EventRegistration() {
                   <span className="text-lg font-semibold text-hdki-red">
                     {event.fee > 0 ? `KSh ${event.fee}` : 'Free'}
                   </span>
-                  {event.max_participants && (
+                  {event.maxParticipants && (
                     <span className="text-sm text-gray-600">
-                      {event.current_registrations || 0} / {event.max_participants} registered
+                      {event.currentRegistrations || 0} / {event.maxParticipants} registered
                     </span>
                   )}
                 </div>

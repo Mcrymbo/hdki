@@ -9,3 +9,4 @@ class NewsAdmin(admin.ModelAdmin):
     search_fields = ('title', 'content', 'author__username')
     ordering = ('-published_at',)
     readonly_fields = ('published_at', 'updated_at')
+

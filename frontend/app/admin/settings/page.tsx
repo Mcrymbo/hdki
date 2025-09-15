@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Save, RefreshCw, Shield, Database, Mail, Globe } from "lucide-react";
+import AdminLayout from "@/components/admin/AdminLayout";
 
 export default function AdminSettings() {
   const [settings, setSettings] = useState({
@@ -62,6 +63,7 @@ export default function AdminSettings() {
   };
 
   return (
+    <AdminLayout>
     <div className="space-y-6">
       {/* Header */}
       <div className="bg-white rounded-lg shadow p-6">
@@ -343,5 +345,6 @@ export default function AdminSettings() {
         </div>
       </div>
     </div>
+    </AdminLayout>
   );
 }

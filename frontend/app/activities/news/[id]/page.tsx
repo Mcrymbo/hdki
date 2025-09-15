@@ -28,7 +28,7 @@ export default function NewsDetail() {
     );
   }
 
-  if (error || !data?.news_article) {
+  if (error || !data?.newsArticle) {
     return (
       <Layout>
         <div className="min-h-screen flex items-center justify-center">
@@ -49,7 +49,7 @@ export default function NewsDetail() {
     );
   }
 
-  const article = data.news_article;
+  const article = data.newsArticle;
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -89,14 +89,14 @@ export default function NewsDetail() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
             <h1 className="text-4xl md:text-5xl font-light text-gray-900 mb-6 leading-tight">
-              {article.title}
+              {article?.title}
             </h1>
             
             <div className="flex items-center justify-center text-gray-600 mb-6">
               <div className="flex items-center mr-6">
                 <Calendar className="h-5 w-5 mr-2" />
-                <time dateTime={article.published_at}>
-                  {new Date(article.published_at).toLocaleDateString('en-US', {
+                <time dateTime={article?.publishedAt}>
+                  {new Date(article?.publishedAt).toLocaleDateString('en-US', {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',
@@ -108,9 +108,9 @@ export default function NewsDetail() {
               <div className="flex items-center">
                 <User className="h-5 w-5 mr-2" />
                 <span>
-                  {article.author?.first_name && article.author?.last_name
-                    ? `${article.author.first_name} ${article.author.last_name}`
-                    : article.author?.username || 'HDKI Kenya'
+                  {article?.author?.firstName && article?.author?.lastName
+                    ? `${article?.author.firstName} ${article?.author.lastName}`
+                    : article?.author?.username || 'HDKI Kenya'
                   }
                 </span>
               </div>
@@ -125,11 +125,11 @@ export default function NewsDetail() {
             </button>
           </div>
 
-          {article.cover_image && (
+          {article?.coverImage && (
             <div className="mb-8">
               <img
-                src={article.cover_image}
-                alt={article.title}
+                src={article?.coverImage}
+                alt={article?.title}
                 className="w-full h-64 md:h-96 object-cover rounded-lg shadow-lg"
               />
             </div>
@@ -145,7 +145,7 @@ export default function NewsDetail() {
               <div 
                 className="text-gray-700 leading-relaxed"
                 dangerouslySetInnerHTML={{ 
-                  __html: article.content?.replace(/\n/g, '<br />') || '' 
+                  __html: article?.content?.replace(/\n/g, '<br />') || '' 
                 }}
               />
             </div>
