@@ -12,6 +12,8 @@ import {
   Menu,
   X,
   Home,
+  MapPin,
+  Mountain,
 } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -20,10 +22,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const navigation = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-    { name: "Events", href: "/admin/events", icon: Calendar },
     { name: "News", href: "/admin/news", icon: Newspaper },
+    { name: "Events", href: "/admin/events", icon: Calendar },
+    { name: "Dojo Locations", href: "/admin/dojos", icon: MapPin },
     { name: "Gallery", href: "/admin/gallery", icon: Image },
-    { name: "Users", href: "/admin/users", icon: Users },
+    { name: "Instructors", href: "/admin/instructors", icon: Users },
+    { name: "Adventures", href: "/admin/adventures", icon: Mountain },
     { name: "Settings", href: "/admin/settings", icon: Settings },
   ];
 

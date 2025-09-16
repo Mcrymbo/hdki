@@ -233,11 +233,13 @@ export const CREATE_NEWS = gql`
     $title: String!
     $content: String!
     $coverImage: String
+    $coverImageFile: Upload
   ) {
     createNews(
       title: $title
       content: $content
       coverImage: $coverImage
+      coverImageFile: $coverImageFile
     ) {
       success
       message
@@ -264,6 +266,7 @@ export const UPDATE_NEWS = gql`
     $title: String
     $content: String
     $coverImage: String
+    $coverImageFile: Upload
     $isPublished: Boolean
   ) {
     updateNews(
@@ -271,6 +274,7 @@ export const UPDATE_NEWS = gql`
       title: $title
       content: $content
       coverImage: $coverImage
+      coverImageFile: $coverImageFile
       isPublished: $isPublished
     ) {
       success
@@ -309,6 +313,7 @@ export const CREATE_EVENT = gql`
     $date: DateTime!
     $location: String!
     $coverImage: String
+    $coverImageFile: Upload
     $fee: Decimal
     $maxParticipants: Int
   ) {
@@ -318,6 +323,7 @@ export const CREATE_EVENT = gql`
       date: $date
       location: $location
       coverImage: $coverImage
+      coverImageFile: $coverImageFile
       fee: $fee
       maxParticipants: $maxParticipants
     ) {
@@ -349,6 +355,7 @@ export const UPDATE_EVENT = gql`
     $date: DateTime
     $location: String
     $coverImage: String
+    $coverImageFile: Upload
     $fee: Decimal
     $maxParticipants: Int
     $isPublished: Boolean
@@ -360,6 +367,7 @@ export const UPDATE_EVENT = gql`
       date: $date
       location: $location
       coverImage: $coverImage
+      coverImageFile: $coverImageFile
       fee: $fee
       maxParticipants: $maxParticipants
       isPublished: $isPublished
@@ -457,6 +465,7 @@ export const CREATE_DOJO_LOCATION = gql`
     $mapLink: String
     $description: String
     $coverImage: String
+    $coverImageFile: Upload
   ) {
     createDojoLocation: createDojoLocation(
       name: $name
@@ -466,15 +475,18 @@ export const CREATE_DOJO_LOCATION = gql`
       mapLink: $mapLink
       description: $description
       coverImage: $coverImage
+      coverImageFile: $coverImageFile
     ) {
-      id
-      name
-      address
-      city
-      country
-      mapLink
-      description
-      coverImage
+      dojoLocation {
+        id
+        name
+        address
+        city
+        country
+        mapLink
+        description
+        coverImage
+      }
     }
   }
 `;
@@ -489,6 +501,7 @@ export const UPDATE_DOJO_LOCATION = gql`
     $mapLink: String
     $description: String
     $coverImage: String
+    $coverImageFile: Upload
   ) {
     updateDojoLocation: updateDojoLocation(
       id: $id
@@ -499,40 +512,59 @@ export const UPDATE_DOJO_LOCATION = gql`
       mapLink: $mapLink
       description: $description
       coverImage: $coverImage
+      coverImageFile: $coverImageFile
     ) {
-      id
-      name
-      address
-      city
-      country
-      mapLink
-      description
-      coverImage
+      dojoLocation {
+        id
+        name
+        address
+        city
+        country
+        mapLink
+        description
+        coverImage
+      }
     }
   }
 `;
 
 export const DELETE_DOJO_LOCATION = gql`
   mutation DeleteDojoLocation($id: ID!) {
-    deleteDojoLocation(id: $id)
+    deleteDojoLocation(id: $id) { ok }
   }
 `;
 
 export const CREATE_GALLERY_ITEM = gql`
-  mutation CreateGalleryItem($title: String!, $image: String!, $description: String) {
-    createGalleryItem: createGalleryItem(title: $title, image: $image, description: $description) {
-      id
-      title
-      image
-      description
-      uploadedAt
+  mutation CreateGalleryItem($title: String!, $image: String, $imageFile: Upload, $description: String) {
+    createGalleryItem: createGalleryItem(title: $title, image: $image, imageFile: $imageFile, description: $description) {
+      gallery {
+        id
+        title
+        image
+        description
+        uploadedAt
+      }
+    }
+  }
+`;
+
+export const UPDATE_GALLERY_ITEM = gql`
+  mutation UpdateGalleryItem($id: ID!, $title: String, $image: String, $imageFile: Upload, $description: String) {
+    updateGalleryItem: updateGalleryItem(id: $id, title: $title, image: $image, imageFile: $imageFile, description: $description) {
+      gallery {
+        id
+        title
+        image
+        description
+        uploadedAt
+      }
     }
   }
 `;
 
 export const DELETE_GALLERY_ITEM = gql`
   mutation DeleteGalleryItem($id: ID!) {
-    deleteGalleryItem(id: $id)
+    deleteGalleryItem(id: $id) { ok }
   }
 `;
 
@@ -542,6 +574,7 @@ export const CREATE_INSTRUCTOR = gql`
     $rank: String!
     $bio: String
     $photo: String
+    $photoFile: Upload
     $dojoLocationId: ID!
   ) {
     createInstructor: createInstructor(
@@ -549,14 +582,17 @@ export const CREATE_INSTRUCTOR = gql`
       rank: $rank
       bio: $bio
       photo: $photo
+      photoFile: $photoFile
       dojoLocationId: $dojoLocationId
     ) {
-      id
-      name
-      rank
-      bio
-      photo
-      dojoLocation { id name }
+      instructor {
+        id
+        name
+        rank
+        bio
+        photo
+        dojoLocation { id name }
+      }
     }
   }
 `;
@@ -568,6 +604,7 @@ export const UPDATE_INSTRUCTOR = gql`
     $rank: String
     $bio: String
     $photo: String
+    $photoFile: Upload
     $dojoLocationId: ID
   ) {
     updateInstructor: updateInstructor(
@@ -576,21 +613,24 @@ export const UPDATE_INSTRUCTOR = gql`
       rank: $rank
       bio: $bio
       photo: $photo
+      photoFile: $photoFile
       dojoLocationId: $dojoLocationId
     ) {
-      id
-      name
-      rank
-      bio
-      photo
-      dojoLocation { id name }
+      instructor {
+        id
+        name
+        rank
+        bio
+        photo
+        dojoLocation { id name }
+      }
     }
   }
 `;
 
 export const DELETE_INSTRUCTOR = gql`
   mutation DeleteInstructor($id: ID!) {
-    deleteInstructor(id: $id)
+    deleteInstructor(id: $id) { ok }
   }
 `;
 
@@ -602,6 +642,7 @@ export const CREATE_KARATE_ADVENTURE = gql`
     $endDate: DateTime!
     $location: String!
     $coverImage: String
+    $coverImageFile: Upload
   ) {
     createKarateAdventure: createKarateAdventure(
       title: $title
@@ -610,14 +651,17 @@ export const CREATE_KARATE_ADVENTURE = gql`
       endDate: $endDate
       location: $location
       coverImage: $coverImage
+      coverImageFile: $coverImageFile
     ) {
-      id
-      title
-      description
-      startDate
-      endDate
-      location
-      coverImage
+      adventure {
+        id
+        title
+        description
+        startDate
+        endDate
+        location
+        coverImage
+      }
     }
   }
 `;
@@ -631,6 +675,7 @@ export const UPDATE_KARATE_ADVENTURE = gql`
     $endDate: DateTime
     $location: String
     $coverImage: String
+    $coverImageFile: Upload
   ) {
     updateKarateAdventure: updateKarateAdventure(
       id: $id
@@ -640,21 +685,24 @@ export const UPDATE_KARATE_ADVENTURE = gql`
       endDate: $endDate
       location: $location
       coverImage: $coverImage
+      coverImageFile: $coverImageFile
     ) {
-      id
-      title
-      description
-      startDate
-      endDate
-      location
-      coverImage
+      adventure {
+        id
+        title
+        description
+        startDate
+        endDate
+        location
+        coverImage
+      }
     }
   }
 `;
 
 export const DELETE_KARATE_ADVENTURE = gql`
   mutation DeleteKarateAdventure($id: ID!) {
-    deleteKarateAdventure(id: $id)
+    deleteKarateAdventure(id: $id) { ok }
   }
 `;
 

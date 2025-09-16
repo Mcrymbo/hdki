@@ -11,6 +11,7 @@ from apps.events.models import Event, EventRegistration
 from apps.contact.models import ContactMessage
 from apps.content.models import DojoLocation as DojoLocationModel, Gallery as GalleryModel, Instructor as InstructorModel, KarateAdventure as KarateAdventureModel
 import graphql_jwt
+from graphene_file_upload.scalars import Upload
 import uuid
 
 User = get_user_model()
@@ -92,17 +93,9 @@ class GalleryType(DjangoObjectType):
 
 
 class InstructorType(DjangoObjectType):
-    photo = graphene.String()
     class Meta:
         model = InstructorModel
         fields = ('id', 'name', 'rank', 'bio', 'photo', 'dojo_location')
-
-    def resolve_photo(self, info):
-        if self.photo:
-            request = info.context
-            return request.build_absolute_uri(self.photo.url)
-        return None
-
 
 class KarateAdventureType(DjangoObjectType):
     cover_image = graphene.String()
@@ -567,12 +560,13 @@ class CreateNews(graphene.Mutation):
         title = graphene.String(required=True)
         content = graphene.String(required=True)
         cover_image = graphene.String()
+        cover_image_file = Upload()
 
     news = graphene.Field(NewsType)
     success = graphene.Boolean()
     message = graphene.String()
 
-    def mutate(self, info, title, content, cover_image=None):
+    def mutate(self, info, title, content, cover_image=None, cover_image_file=None):
         user = info.context.user
         if not user.is_authenticated or not user.is_admin:
             return CreateNews(success=False, message="Only admins can create news")
@@ -582,7 +576,7 @@ class CreateNews(graphene.Mutation):
                 title=title,
                 content=content,
                 author=user,
-                cover_image=cover_image
+                cover_image=cover_image_file or cover_image
             )
             return CreateNews(news=news, success=True, message="News created successfully")
         except Exception as e:
@@ -595,13 +589,14 @@ class UpdateNews(graphene.Mutation):
         title = graphene.String()
         content = graphene.String()
         cover_image = graphene.String()
+        cover_image_file = Upload()
         is_published = graphene.Boolean()
 
     news = graphene.Field(NewsType)
     success = graphene.Boolean()
     message = graphene.String()
 
-    def mutate(self, info, id, **kwargs):
+    def mutate(self, info, id, cover_image_file=None, **kwargs):
         user = info.context.user
         if not user.is_authenticated or not user.is_admin:
             return UpdateNews(success=False, message="Only admins can update news")
@@ -611,6 +606,8 @@ class UpdateNews(graphene.Mutation):
             for field, value in kwargs.items():
                 if value is not None:
                     setattr(news, field, value)
+            if cover_image_file is not None:
+                news.cover_image = cover_image_file
             news.save()
             return UpdateNews(news=news, success=True, message="News updated successfully")
         except News.DoesNotExist:
@@ -648,6 +645,7 @@ class CreateEvent(graphene.Mutation):
         date = graphene.DateTime(required=True)
         location = graphene.String(required=True)
         cover_image = graphene.String()
+        cover_image_file = Upload()
         fee = graphene.Decimal()
         max_participants = graphene.Int()
 
@@ -655,7 +653,7 @@ class CreateEvent(graphene.Mutation):
     success = graphene.Boolean()
     message = graphene.String()
 
-    def mutate(self, info, title, description, date, location, cover_image=None, fee=0, max_participants=None):
+    def mutate(self, info, title, description, date, location, cover_image=None, cover_image_file=None, fee=0, max_participants=None):
         user = info.context.user
         if not user.is_authenticated or not user.is_admin:
             return CreateEvent(success=False, message="Only admins can create events")
@@ -666,7 +664,7 @@ class CreateEvent(graphene.Mutation):
                 description=description,
                 date=date,
                 location=location,
-                cover_image=cover_image,
+                cover_image=cover_image_file or cover_image,
                 fee=fee,
                 max_participants=max_participants
             )
@@ -683,6 +681,7 @@ class UpdateEvent(graphene.Mutation):
         date = graphene.DateTime()
         location = graphene.String()
         cover_image = graphene.String()
+        cover_image_file = Upload()
         fee = graphene.Decimal()
         max_participants = graphene.Int()
         is_published = graphene.Boolean()
@@ -691,7 +690,7 @@ class UpdateEvent(graphene.Mutation):
     success = graphene.Boolean()
     message = graphene.String()
 
-    def mutate(self, info, id, **kwargs):
+    def mutate(self, info, id, cover_image_file=None, **kwargs):
         user = info.context.user
         if not user.is_authenticated or not user.is_admin:
             return UpdateEvent(success=False, message="Only admins can update events")
@@ -701,6 +700,8 @@ class UpdateEvent(graphene.Mutation):
             for field, value in kwargs.items():
                 if value is not None:
                     setattr(event, field, value)
+            if cover_image_file is not None:
+                event.cover_image = cover_image_file
             event.save()
             return UpdateEvent(event=event, success=True, message="Event updated successfully")
         except Event.DoesNotExist:
@@ -804,14 +805,18 @@ class CreateDojoLocation(graphene.Mutation):
         map_link = graphene.String()
         description = graphene.String()
         cover_image = graphene.String()
+        cover_image_file = Upload()
 
     dojo_location = graphene.Field(DojoLocationType)
 
-    def mutate(self, info, **kwargs):
+    def mutate(self, info, cover_image_file=None, **kwargs):
         user = info.context.user
         if not user.is_authenticated or not user.is_admin:
             raise Exception("Only admins can create dojo locations")
-        obj = DojoLocationModel.objects.create(**{k: v for k, v in kwargs.items() if v is not None})
+        create_data = {k: v for k, v in kwargs.items() if v is not None}
+        if cover_image_file is not None:
+            create_data["cover_image"] = cover_image_file
+        obj = DojoLocationModel.objects.create(**create_data)
         return CreateDojoLocation(dojo_location=obj)
 
 
@@ -825,10 +830,11 @@ class UpdateDojoLocation(graphene.Mutation):
         map_link = graphene.String()
         description = graphene.String()
         cover_image = graphene.String()
+        cover_image_file = Upload()
 
     dojo_location = graphene.Field(DojoLocationType)
 
-    def mutate(self, info, id, **kwargs):
+    def mutate(self, info, id, cover_image_file=None, **kwargs):
         user = info.context.user
         if not user.is_authenticated or not user.is_admin:
             raise Exception("Only admins can update dojo locations")
@@ -836,6 +842,8 @@ class UpdateDojoLocation(graphene.Mutation):
         for k, v in kwargs.items():
             if v is not None:
                 setattr(obj, k, v)
+        if cover_image_file is not None:
+            obj.cover_image = cover_image_file
         obj.save()
         return UpdateDojoLocation(dojo_location=obj)
 
@@ -857,16 +865,17 @@ class DeleteDojoLocation(graphene.Mutation):
 class CreateGalleryItem(graphene.Mutation):
     class Arguments:
         title = graphene.String(required=True)
-        image = graphene.String(required=True)
+        image = graphene.String()
+        image_file = Upload()
         description = graphene.String()
 
     gallery = graphene.Field(GalleryType)
 
-    def mutate(self, info, title, image, description=None):
+    def mutate(self, info, title, image=None, image_file=None, description=None):
         user = info.context.user
         if not user.is_authenticated or not user.is_admin:
             raise Exception("Only admins can create gallery items")
-        obj = GalleryModel.objects.create(title=title, image=image, description=description or "")
+        obj = GalleryModel.objects.create(title=title, image=image_file or image, description=description or "")
         return CreateGalleryItem(gallery=obj)
 
 
@@ -884,22 +893,47 @@ class DeleteGalleryItem(graphene.Mutation):
         return DeleteGalleryItem(ok=True)
 
 
+class UpdateGalleryItem(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+        title = graphene.String()
+        image = graphene.String()
+        image_file = Upload()
+        description = graphene.String()
+
+    gallery = graphene.Field(GalleryType)
+
+    def mutate(self, info, id, image_file=None, **kwargs):
+        user = info.context.user
+        if not user.is_authenticated or not user.is_admin:
+            raise Exception("Only admins can update gallery items")
+        obj = GalleryModel.objects.get(id=id)
+        for k, v in kwargs.items():
+            if v is not None:
+                setattr(obj, k, v)
+        if image_file is not None:
+            obj.image = image_file
+        obj.save()
+        return UpdateGalleryItem(gallery=obj)
+
+
 class CreateInstructor(graphene.Mutation):
     class Arguments:
         name = graphene.String(required=True)
         rank = graphene.String(required=True)
         bio = graphene.String()
         photo = graphene.String()
+        photo_file = Upload()
         dojo_location_id = graphene.ID(required=True)
 
     instructor = graphene.Field(InstructorType)
 
-    def mutate(self, info, name, rank, dojo_location_id, bio=None, photo=None):
+    def mutate(self, info, name, rank, dojo_location_id, bio=None, photo=None, photo_file=None):
         user = info.context.user
         if not user.is_authenticated or not user.is_admin:
             raise Exception("Only admins can create instructors")
         dojo = DojoLocationModel.objects.get(id=dojo_location_id)
-        obj = InstructorModel.objects.create(name=name, rank=rank, bio=bio or "", photo=photo, dojo_location=dojo)
+        obj = InstructorModel.objects.create(name=name, rank=rank, bio=bio or "", photo=photo_file or photo, dojo_location=dojo)
         return CreateInstructor(instructor=obj)
 
 
@@ -910,11 +944,12 @@ class UpdateInstructor(graphene.Mutation):
         rank = graphene.String()
         bio = graphene.String()
         photo = graphene.String()
+        photo_file = Upload()
         dojo_location_id = graphene.ID()
 
     instructor = graphene.Field(InstructorType)
 
-    def mutate(self, info, id, dojo_location_id=None, **kwargs):
+    def mutate(self, info, id, dojo_location_id=None, photo_file=None, **kwargs):
         user = info.context.user
         if not user.is_authenticated or not user.is_admin:
             raise Exception("Only admins can update instructors")
@@ -924,6 +959,8 @@ class UpdateInstructor(graphene.Mutation):
         for k, v in kwargs.items():
             if k in ["name", "rank", "bio", "photo"] and v is not None:
                 setattr(obj, k, v)
+        if photo_file is not None:
+            obj.photo = photo_file
         obj.save()
         return UpdateInstructor(instructor=obj)
 
@@ -950,14 +987,18 @@ class CreateKarateAdventure(graphene.Mutation):
         end_date = graphene.DateTime(required=True)
         location = graphene.String(required=True)
         cover_image = graphene.String()
+        cover_image_file = Upload()
 
     adventure = graphene.Field(KarateAdventureType)
 
-    def mutate(self, info, **kwargs):
+    def mutate(self, info, cover_image_file=None, **kwargs):
         user = info.context.user
         if not user.is_authenticated or not user.is_admin:
             raise Exception("Only admins can create adventures")
-        obj = KarateAdventureModel.objects.create(**kwargs)
+        create_data = dict(kwargs)
+        if cover_image_file is not None:
+            create_data["cover_image"] = cover_image_file
+        obj = KarateAdventureModel.objects.create(**create_data)
         return CreateKarateAdventure(adventure=obj)
 
 
@@ -970,10 +1011,11 @@ class UpdateKarateAdventure(graphene.Mutation):
         end_date = graphene.DateTime()
         location = graphene.String()
         cover_image = graphene.String()
+        cover_image_file = Upload()
 
     adventure = graphene.Field(KarateAdventureType)
 
-    def mutate(self, info, id, **kwargs):
+    def mutate(self, info, id, cover_image_file=None, **kwargs):
         user = info.context.user
         if not user.is_authenticated or not user.is_admin:
             raise Exception("Only admins can update adventures")
@@ -981,6 +1023,8 @@ class UpdateKarateAdventure(graphene.Mutation):
         for k, v in kwargs.items():
             if v is not None:
                 setattr(obj, k, v)
+        if cover_image_file is not None:
+            obj.cover_image = cover_image_file
         obj.save()
         return UpdateKarateAdventure(adventure=obj)
 
@@ -1036,6 +1080,7 @@ class Mutation(graphene.ObjectType):
     update_dojo_location = UpdateDojoLocation.Field()
     delete_dojo_location = DeleteDojoLocation.Field()
     create_gallery_item = CreateGalleryItem.Field()
+    update_gallery_item = UpdateGalleryItem.Field()
     delete_gallery_item = DeleteGalleryItem.Field()
     create_instructor = CreateInstructor.Field()
     update_instructor = UpdateInstructor.Field()

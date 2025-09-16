@@ -7,7 +7,7 @@ import { DELETE_GALLERY_ITEM } from '@/lib/graphql/mutations';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminLayout from '@/components/admin/AdminLayout';
 import Link from 'next/link';
-import { Plus, Trash2, Eye, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash2, Eye, Image as ImageIcon, Edit } from 'lucide-react';
 
 export default function AdminGallery() {
   const { isAdmin } = useAuth();
@@ -144,6 +144,13 @@ export default function AdminGallery() {
                         title="View"
                       >
                         <Eye className="h-4 w-4" />
+                      </Link>
+                      <Link
+                        href={`/admin/gallery/${item.id}/edit`}
+                        className="text-gray-400 hover:text-blue-600"
+                        title="Edit"
+                      >
+                        <Edit className="h-4 w-4" />
                       </Link>
                       <button
                         onClick={() => handleDelete(item.id)}
