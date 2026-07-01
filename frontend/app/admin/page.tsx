@@ -1,11 +1,39 @@
 "use client";
 
-import { useQuery } from '@apollo/client';
-import { GET_ME, GET_NEWS, GET_EVENTS, GET_CONTACT_MESSAGES } from '@/lib/graphql/queries';
-import { useAuth } from '@/contexts/AuthContext';
-import AdminLayout from '@/components/admin/AdminLayout';
-import { Calendar, Newspaper, Mail, Users, TrendingUp, Activity } from 'lucide-react';
-import Link from 'next/link';
+import { useQuery } from "@apollo/client";
+import { GET_NEWS, GET_EVENTS, GET_CONTACT_MESSAGES } from "@/lib/graphql/queries";
+import { useAuth } from "@/contexts/AuthContext";
+import AdminLayout from "@/components/admin/AdminLayout";
+import AccessDenied from "@/components/admin/ui/AccessDenied";
+import StatCard from "@/components/admin/ui/StatCard";
+import { Calendar, Newspaper, Mail, UserPlus, Settings, ArrowRight } from "lucide-react";
+import Link from "next/link";
+
+interface NewsArticle {
+  id: string;
+  title: string;
+  publishedAt: string;
+}
+
+interface EventItem {
+  id: string;
+  title: string;
+  date: string;
+}
+
+interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+}
+
+const quickActions = [
+  { label: "Create News Article", href: "/admin/news/create", icon: <Newspaper /> },
+  { label: "Create Event", href: "/admin/events/create", icon: <Calendar /> },
+  { label: "Add User", href: "/admin/users/create", icon: <UserPlus /> },
+  { label: "Settings", href: "/admin/settings", icon: <Settings /> },
+];
 
 export default function AdminDashboard() {
   const { user, isAdmin } = useAuth();
@@ -15,254 +43,101 @@ export default function AdminDashboard() {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Access Denied</h1>
-          <p className="text-gray-600 mb-8">You need admin privileges to access this page.</p>
-          <Link
-            href="/"
-            className="bg-hdki-red hover:bg-hdki-red-dark text-white px-6 py-3 font-semibold transition-colors duration-300"
-          >
-            Go to Home
-          </Link>
-        </div>
-      </div>
+      <AdminLayout>
+        <AccessDenied />
+      </AdminLayout>
     );
   }
 
-  const stats = [
-    {
-      name: 'Total News Articles',
-      value: newsData?.news?.length || 0,
-      icon: Newspaper,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
-      href: '/admin/news'
-    },
-    {
-      name: 'Upcoming Events',
-      value: eventsData?.events?.length || 0,
-      icon: Calendar,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100',
-      href: '/admin/events'
-    },
-    {
-      name: 'Contact Messages',
-      value: contactData?.contact_messages?.length || 0,
-      icon: Mail,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100',
-      href: '/admin/contact'
-    },
-    {
-      name: 'Total Users',
-      value: 0, // This would need a separate query
-      icon: Users,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100',
-      href: '/admin/users'
-    }
-  ];
+  const news: NewsArticle[] = newsData?.news || [];
+  const events: EventItem[] = eventsData?.events || [];
+  const messages: ContactMessage[] = contactData?.contactMessages || [];
 
-  const recentNews = newsData?.news?.slice(0, 5) || [];
-  const recentEvents = eventsData?.events?.slice(0, 5) || [];
-  const recentMessages = contactData?.contact_messages?.slice(0, 5) || [];
+  const recentSections = [
+    {
+      title: "Recent News",
+      href: "/admin/news",
+      icon: Newspaper,
+      items: news.slice(0, 5).map((a) => ({ id: a.id, primary: a.title, secondary: new Date(a.publishedAt).toLocaleDateString() })),
+      empty: "No news articles yet",
+    },
+    {
+      title: "Recent Events",
+      href: "/admin/events",
+      icon: Calendar,
+      items: events.slice(0, 5).map((e) => ({ id: e.id, primary: e.title, secondary: new Date(e.date).toLocaleDateString() })),
+      empty: "No events yet",
+    },
+    {
+      title: "Recent Messages",
+      href: "/admin/contact",
+      icon: Mail,
+      items: messages.slice(0, 5).map((m) => ({ id: m.id, primary: m.name, secondary: m.email })),
+      empty: "No messages yet",
+    },
+  ];
 
   return (
     <AdminLayout>
-      <div className="space-y-8">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-light text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-2">
-            Welcome back, {user?.first_name || user?.username}. Here's what's happening with HDKI Kenya.
-          </p>
-        </div>
+      <div className="mb-8">
+        <h1 className="font-display text-2xl font-medium text-hdki-ink">Dashboard</h1>
+        <p className="mt-1 text-sm text-hdki-gray-mid">
+          Welcome back, {user?.first_name || user?.username}. Here&apos;s what&apos;s happening with HDKI Kenya.
+        </p>
+      </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat) => (
+      <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <StatCard label="News Articles" value={news.length} icon={<Newspaper />} />
+        <StatCard label="Upcoming Events" value={events.length} icon={<Calendar />} />
+        <StatCard label="Contact Messages" value={messages.length} icon={<Mail />} />
+      </div>
+
+      <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {recentSections.map((section) => (
+          <div key={section.title} className="rounded-sm border border-hdki-border bg-white">
+            <div className="flex items-center justify-between border-b border-hdki-border px-6 py-4">
+              <h3 className="font-display text-base font-medium text-hdki-ink">{section.title}</h3>
+              <Link href={section.href} className="text-sm font-medium text-hdki-red hover:text-hdki-red-dark">
+                View all
+              </Link>
+            </div>
+            <div className="p-6">
+              {section.items.length === 0 ? (
+                <p className="text-sm text-hdki-gray-mid">{section.empty}</p>
+              ) : (
+                <div className="space-y-4">
+                  {section.items.map((item) => (
+                    <div key={item.id} className="flex items-start gap-3">
+                      <section.icon className="mt-0.5 h-4 w-4 shrink-0 text-hdki-gray-mid" />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-hdki-ink">{item.primary}</p>
+                        <p className="text-sm text-hdki-gray-mid">{item.secondary}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="rounded-sm border border-hdki-border bg-white p-6">
+        <h3 className="mb-4 font-display text-base font-medium text-hdki-ink">Quick Actions</h3>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {quickActions.map((action) => (
             <Link
-              key={stat.name}
-              href={stat.href}
-              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-200"
+              key={action.label}
+              href={action.href}
+              className="flex items-center gap-3 rounded-sm border border-hdki-border p-4 transition-colors hover:bg-hdki-gray-light"
             >
-              <div className="flex items-center">
-                <div className={`p-3 rounded-lg ${stat.bgColor}`}>
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">{stat.name}</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stat.value}</p>
-                </div>
-              </div>
+              <span className="text-hdki-red [&>svg]:h-5 [&>svg]:w-5">{action.icon}</span>
+              <span className="flex-1 text-sm font-medium text-hdki-ink">{action.label}</span>
+              <ArrowRight className="h-4 w-4 text-hdki-gray-mid" />
             </Link>
           ))}
-        </div>
-
-        {/* Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Recent News */}
-          <div className="bg-white rounded-lg shadow">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">Recent News</h3>
-                <Link
-                  href="/admin/news"
-                  className="text-sm text-hdki-red hover:text-hdki-red-dark font-medium"
-                >
-                  View all
-                </Link>
-              </div>
-            </div>
-            <div className="p-6">
-              {recentNews.length === 0 ? (
-                <p className="text-gray-500 text-sm">No news articles yet</p>
-              ) : (
-                <div className="space-y-4">
-                  {recentNews.map((article: any) => (
-                    <div key={article.id} className="flex items-start space-x-3">
-                      <div className="flex-shrink-0">
-                        <Newspaper className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {article.title}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {new Date(article.published_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Recent Events */}
-          <div className="bg-white rounded-lg shadow">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">Recent Events</h3>
-                <Link
-                  href="/admin/events"
-                  className="text-sm text-hdki-red hover:text-hdki-red-dark font-medium"
-                >
-                  View all
-                </Link>
-              </div>
-            </div>
-            <div className="p-6">
-              {recentEvents.length === 0 ? (
-                <p className="text-gray-500 text-sm">No events yet</p>
-              ) : (
-                <div className="space-y-4">
-                  {recentEvents.map((event: any) => (
-                    <div key={event.id} className="flex items-start space-x-3">
-                      <div className="flex-shrink-0">
-                        <Calendar className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {event.title}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {new Date(event.date).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Recent Messages */}
-          <div className="bg-white rounded-lg shadow">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">Recent Messages</h3>
-                <Link
-                  href="/admin/contact"
-                  className="text-sm text-hdki-red hover:text-hdki-red-dark font-medium"
-                >
-                  View all
-                </Link>
-              </div>
-            </div>
-            <div className="p-6">
-              {recentMessages.length === 0 ? (
-                <p className="text-gray-500 text-sm">No messages yet</p>
-              ) : (
-                <div className="space-y-4">
-                  {recentMessages.map((message: any) => (
-                    <div key={message.id} className="flex items-start space-x-3">
-                      <div className="flex-shrink-0">
-                        <Mail className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {message.name}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {message.email}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {new Date(message.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Link
-              href="/admin/news/create"
-              className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-            >
-              <Newspaper className="h-5 w-5 text-hdki-red mr-3" />
-              <span className="text-sm font-medium text-gray-900">Create News Article</span>
-            </Link>
-            <Link
-              href="/admin/events/create"
-              className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-            >
-              <Calendar className="h-5 w-5 text-hdki-red mr-3" />
-              <span className="text-sm font-medium text-gray-900">Create Event</span>
-            </Link>
-            <Link
-              href="/admin/users/create"
-              className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-            >
-              <Users className="h-5 w-5 text-hdki-red mr-3" />
-              <span className="text-sm font-medium text-gray-900">Add User</span>
-            </Link>
-            <Link
-              href="/admin/settings"
-              className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-            >
-              <Activity className="h-5 w-5 text-hdki-red mr-3" />
-              <span className="text-sm font-medium text-gray-900">Settings</span>
-            </Link>
-          </div>
         </div>
       </div>
     </AdminLayout>
   );
 }
-
-
-
-
-
-
-

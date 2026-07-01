@@ -1,136 +1,137 @@
-import Link from "next/link";
+import Image from "next/image";
 import Layout from "@/components/Layout";
 import TrainingSessions from "@/components/TrainingHolder";
-import { ArrowRight, MapPin, Users, Trophy, Star } from "lucide-react";
+import Button from "@/components/ui/Button";
+import HeroSection from "@/components/ui/HeroSection";
+import SectionHeading from "@/components/ui/SectionHeading";
+import IconCircle from "@/components/ui/IconCircle";
+import Card, { CardBody } from "@/components/ui/Card";
+import Reveal from "@/components/ui/Reveal";
+import CTABand from "@/components/ui/CTABand";
+import { ArrowRight, MapPin, Users, Trophy, Star, Quote } from "lucide-react";
+
+const features = [
+  {
+    icon: <Trophy />,
+    title: "World-Class Training",
+    description: "Train with certified HDKI instructors in stunning locations from Mombasa beaches to Maasai Mara camps.",
+  },
+  {
+    icon: <MapPin />,
+    title: "Cultural Immersion",
+    description: "Experience authentic Kenyan culture, cuisine, music, and traditions alongside your martial arts journey.",
+  },
+  {
+    icon: <Users />,
+    title: "Adventure Tourism",
+    description: "Safari excursions, mountain climbing, beach training, and wildlife experiences integrated with karate camps.",
+  },
+];
+
+const testimonials = [
+  {
+    quote:
+      "Training on the shores of Lake Nakuru while watching flamingos was a once-in-a-lifetime experience. The instructors were phenomenal and the cultural immersion was incredible.",
+    name: "Sarah Mitchell",
+    detail: "Black Belt, Canada",
+  },
+  {
+    quote:
+      "HDKI Kenya's adventure program exceeded all expectations. The combination of serious martial arts training and authentic safari experiences was perfectly balanced.",
+    name: "Takeshi Yamamoto",
+    detail: "Instructor, Japan",
+  },
+  {
+    quote:
+      "The cultural exchange with local Kenyan martial artists and the mountain training camps created memories that will last forever. Highly recommend to any serious practitioner.",
+    name: "Maria Rodriguez",
+    detail: "Tournament Champion, Spain",
+  },
+];
 
 export default function Index() {
   return (
     <Layout>
-      {/* Hero Section */}
-      <section className="relative h-screen bg-gradient-to-br from-black/70 to-black/50 flex items-center justify-center">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1540979388789-6cee28a1cdc9?q=80&w=2000&auto=format&fit=crop')",
-          }}
-        />
-        <div className="absolute inset-0 bg-black/40" />
-        
-        <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-4">
-          <div className="mb-8">
-            <div className="w-20 h-20 bg-hdki-red border-4 border-hdki-red flex items-center justify-center mx-auto mb-6">
-              <span className="text-white font-bold text-2xl tracking-tight leading-none">
-                HD<br />KI
-              </span>
-            </div>
-          </div>
-          
-          <h1 className="text-5xl md:text-7xl font-light tracking-wide mb-6">
-            HDKI KENYA
-          </h1>
-          
-          <div className="text-lg md:text-xl font-light tracking-wider mb-8 space-x-4">
-            <span>Tradition</span>
-            <span className="text-hdki-red">•</span>
-            <span>Adventure</span>
-            <span className="text-hdki-red">•</span>
-            <span>Culture</span>
-            <span className="text-hdki-red">•</span>
-            <span>Excellence</span>
-          </div>
-          
-          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto font-light">
-            Experience the perfect fusion of traditional martial arts and Kenya's breathtaking adventure tourism
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/content/karate-adventures"
-              className="bg-hdki-red hover:bg-hdki-red-dark text-white px-8 py-4 text-lg font-semibold transition-colors duration-300 flex items-center justify-center group"
-            >
-              Explore Karate Adventures
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <Link
-              href="/content/about"
-              className="border-2 border-white text-white hover:bg-white hover:text-black px-8 py-4 text-lg font-semibold transition-all duration-300"
-            >
-              Learn About HDKI Kenya
-            </Link>
-          </div>
-        </div>
-      </section>
+      <HeroSection
+        image="https://images.unsplash.com/photo-1555597673-b21d5c935865?q=80&w=2000&auto=format&fit=crop"
+        eyebrow="HDKI Kenya"
+        title="Tradition Meets Adventure"
+        subtitle="Traditional Shotokan karate training fused with Kenya's world-class adventure tourism — discipline, culture, and exploration in one unforgettable journey."
+        height="full"
+      >
+        <Button href="/adventures" variant="primary" size="lg" icon={<ArrowRight />}>
+          Explore Karate Adventures
+        </Button>
+        <Button href="/content/about" variant="outline-white" size="lg">
+          Learn About HDKI Kenya
+        </Button>
+      </HeroSection>
 
       {/* Karate Adventures Highlight */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-light text-gray-900 mb-6">
-              Karate Adventures in Kenya
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              The world's first martial arts sports tourism experience. Train with world-class instructors 
-              while exploring Kenya's incredible landscapes, wildlife, and culture.
-            </p>
-          </div>
+      <section className="bg-white py-14 md:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeading
+            eyebrow="What We Offer"
+            title="Karate Adventures in Kenya"
+            subtitle="The world's first martial arts sports tourism experience. Train with world-class instructors while exploring Kenya's incredible landscapes, wildlife, and culture."
+          />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-hdki-red rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trophy className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">World-Class Training</h3>
-              <p className="text-gray-600">
-                Train with certified HDKI instructors in stunning locations from Mombasa beaches to Maasai Mara camps.
-              </p>
-            </div>
-
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-hdki-red rounded-full flex items-center justify-center mx-auto mb-4">
-                <MapPin className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Cultural Immersion</h3>
-              <p className="text-gray-600">
-                Experience authentic Kenyan culture, cuisine, music, and traditions alongside your martial arts journey.
-              </p>
-            </div>
-
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-hdki-red rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Adventure Tourism</h3>
-              <p className="text-gray-600">
-                Safari excursions, mountain climbing, beach training, and wildlife experiences integrated with karate camps.
-              </p>
-            </div>
+          <div className="mb-12 grid grid-cols-1 gap-8 md:grid-cols-3">
+            {features.map((feature, i) => (
+              <Reveal key={feature.title} delay={i * 0.1} className="text-center">
+                <IconCircle icon={feature.icon} size="lg" className="mx-auto mb-5" />
+                <h3 className="mb-3 font-display text-xl font-medium text-hdki-ink">{feature.title}</h3>
+                <p className="text-hdki-gray-mid">{feature.description}</p>
+              </Reveal>
+            ))}
           </div>
 
           <div className="text-center">
-            <Link
-              href="/content/karate-adventures"
-              className="bg-hdki-red hover:bg-hdki-red-dark text-white px-8 py-4 text-lg font-semibold transition-colors duration-300 inline-flex items-center group"
-            >
+            <Button href="/adventures" variant="outline" size="lg" icon={<ArrowRight />}>
               Discover All Adventures
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
+            </Button>
           </div>
         </div>
       </section>
 
       {/* Mission Statement */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-light text-gray-900 mb-8">Our Mission</h2>
-          <p className="text-xl text-gray-700 leading-relaxed mb-8">
-            HDKI Kenya is dedicated to promoting the traditional values and techniques of martial arts 
-            while showcasing the natural beauty and rich culture of Kenya. We create transformative 
-            experiences that combine physical discipline, mental growth, and cultural appreciation.
-          </p>
-          <p className="text-lg text-gray-600">
-            As an official affiliate of <a href="https://hdki.org/" target="_blank" rel="noopener noreferrer" className="text-hdki-red hover:underline">HDKI International</a>, 
-            we uphold the highest standards of martial arts excellence while pioneering the future of sports tourism.
-          </p>
+      <section className="bg-hdki-gray-light py-14 md:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2">
+            <Reveal direction="right">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-sm">
+                <Image
+                  src="https://images.unsplash.com/photo-1656653399674-446838d45998?q=80&w=1200&auto=format&fit=crop"
+                  alt="HDKI Kenya karate instructor in a focused training stance"
+                  fill
+                  unoptimized
+                  sizes="(min-width: 768px) 50vw, 100vw"
+                  className="object-cover"
+                />
+              </div>
+            </Reveal>
+            <Reveal direction="left">
+              <SectionHeading eyebrow="Our Mission" title="Built on Tradition, Driven by Excellence" align="left" />
+              <p className="text-lg leading-relaxed text-hdki-ink">
+                HDKI Kenya is dedicated to promoting the traditional values and techniques of martial arts while
+                showcasing the natural beauty and rich culture of Kenya. We create transformative experiences that
+                combine physical discipline, mental growth, and cultural appreciation.
+              </p>
+              <p className="mt-6 text-hdki-gray-mid">
+                As an official affiliate of{" "}
+                <a
+                  href="https://hdki.org/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-hdki-red hover:underline"
+                >
+                  HDKI International
+                </a>
+                , we uphold the highest standards of martial arts excellence while pioneering the future of sports
+                tourism.
+              </p>
+            </Reveal>
+          </div>
         </div>
       </section>
 
@@ -138,81 +139,41 @@ export default function Index() {
       <TrainingSessions />
 
       {/* Testimonials */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-light text-center text-gray-900 mb-16">
-            What Our Adventurers Say
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-gray-50 p-8 text-center">
-              <div className="flex justify-center mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
-                ))}
-              </div>
-              <p className="text-gray-700 mb-6 italic">
-                "Training on the shores of Lake Nakuru while watching flamingos was a once-in-a-lifetime experience. 
-                The instructors were phenomenal and the cultural immersion was incredible."
-              </p>
-              <div className="font-semibold text-gray-900">Sarah Mitchell</div>
-              <div className="text-gray-600">Black Belt, Canada</div>
-            </div>
+      <section className="bg-white py-14 md:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeading eyebrow="Testimonials" title="What Our Adventurers Say" />
 
-            <div className="bg-gray-50 p-8 text-center">
-              <div className="flex justify-center mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
-                ))}
-              </div>
-              <p className="text-gray-700 mb-6 italic">
-                "HDKI Kenya's adventure program exceeded all expectations. The combination of serious martial arts 
-                training and authentic safari experiences was perfectly balanced."
-              </p>
-              <div className="font-semibold text-gray-900">Takeshi Yamamoto</div>
-              <div className="text-gray-600">Instructor, Japan</div>
-            </div>
-
-            <div className="bg-gray-50 p-8 text-center">
-              <div className="flex justify-center mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
-                ))}
-              </div>
-              <p className="text-gray-700 mb-6 italic">
-                "The cultural exchange with local Kenyan martial artists and the mountain training camps 
-                created memories that will last forever. Highly recommend to any serious practitioner."
-              </p>
-              <div className="font-semibold text-gray-900">Maria Rodriguez</div>
-              <div className="text-gray-600">Tournament Champion, Spain</div>
-            </div>
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {testimonials.map((t, i) => (
+              <Reveal key={t.name} delay={i * 0.1}>
+                <Card variant="bordered" hover="lift" className="h-full">
+                  <CardBody className="flex h-full flex-col">
+                    <Quote className="mb-3 h-6 w-6 text-hdki-red-light" fill="currentColor" strokeWidth={0} />
+                    <div className="mb-4 flex gap-0.5">
+                      {[...Array(5)].map((_, idx) => (
+                        <Star key={idx} className="h-4 w-4 fill-current text-hdki-red" />
+                      ))}
+                    </div>
+                    <p className="mb-6 flex-1 text-hdki-ink">&ldquo;{t.quote}&rdquo;</p>
+                    <div>
+                      <div className="font-semibold text-hdki-ink">{t.name}</div>
+                      <div className="text-sm text-hdki-gray-mid">{t.detail}</div>
+                    </div>
+                  </CardBody>
+                </Card>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-hdki-gray-dark text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-light mb-6">Ready to Begin Your Adventure?</h2>
-          <p className="text-xl mb-8 text-gray-300">
-            Join us for an unforgettable journey that combines martial arts excellence with Kenya's natural wonders.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/content/contact"
-              className="bg-hdki-red hover:bg-hdki-red-dark text-white px-8 py-4 text-lg font-semibold transition-colors duration-300"
-            >
-              Contact Us Today
-            </Link>
-            <Link
-              href="/activities/events"
-              className="border-2 border-white text-white hover:bg-white hover:text-black px-8 py-4 text-lg font-semibold transition-all duration-300"
-            >
-              View Upcoming Events
-            </Link>
-          </div>
-        </div>
-      </section>
+      <CTABand
+        eyebrow="Join Us"
+        title="Ready to Begin Your Adventure?"
+        subtitle="Join us for an unforgettable journey that combines martial arts excellence with Kenya's natural wonders."
+        primaryCta={{ label: "Contact Us Today", href: "/content/contact" }}
+        secondaryCta={{ label: "View Upcoming Events", href: "/activities/events" }}
+      />
     </Layout>
   );
 }

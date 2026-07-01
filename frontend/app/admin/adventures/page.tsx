@@ -1,182 +1,162 @@
 "use client";
 
-import { useState } from 'react';
-import { useQuery, useMutation } from '@apollo/client';
-import { GET_KARATE_ADVENTURES } from '@/lib/graphql/queries';
-import { DELETE_KARATE_ADVENTURE } from '@/lib/graphql/mutations';
-import { useAuth } from '@/contexts/AuthContext';
-import AdminLayout from '@/components/admin/AdminLayout';
-import Link from 'next/link';
-import { Plus, Edit, Trash2, Eye, Calendar, MapPin } from 'lucide-react';
+import { useState } from "react";
+import { useQuery, useMutation } from "@apollo/client";
+import { GET_KARATE_ADVENTURES } from "@/lib/graphql/queries";
+import { DELETE_KARATE_ADVENTURE } from "@/lib/graphql/mutations";
+import { useAuth } from "@/contexts/AuthContext";
+import AdminLayout from "@/components/admin/AdminLayout";
+import DataTable, { type DataTableColumn } from "@/components/admin/ui/DataTable";
+import AccessDenied from "@/components/admin/ui/AccessDenied";
+import ConfirmDialog from "@/components/admin/ui/ConfirmDialog";
+import { useToast } from "@/components/admin/ui/Toast";
+import LoadingState from "@/components/ui/LoadingState";
+import ErrorState from "@/components/ui/ErrorState";
+import EmptyState from "@/components/ui/EmptyState";
+import Button from "@/components/ui/Button";
+import Image from "next/image";
+import Link from "next/link";
+import { Plus, Eye, Pencil, Trash2, MapPin, Calendar, Mountain } from "lucide-react";
+
+interface Adventure {
+  id: string;
+  title: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  location: string;
+  coverImage?: string;
+}
 
 export default function AdminAdventures() {
   const { isAdmin } = useAuth();
-  
+  const { toast } = useToast();
+  const [pendingDelete, setPendingDelete] = useState<Adventure | null>(null);
+
   const { data, loading, error, refetch } = useQuery(GET_KARATE_ADVENTURES);
-  const [deleteAdventure] = useMutation(DELETE_KARATE_ADVENTURE);
+  const [deleteAdventure, { loading: deleting }] = useMutation(DELETE_KARATE_ADVENTURE);
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Access Denied</h1>
-          <p className="text-gray-600 mb-8">You need admin privileges to access this page.</p>
-          <Link
-            href="/"
-            className="bg-hdki-red hover:bg-hdki-red-dark text-white px-6 py-3 font-semibold transition-colors duration-300"
-          >
-            Go to Home
-          </Link>
-        </div>
-      </div>
+      <AdminLayout>
+        <AccessDenied />
+      </AdminLayout>
     );
   }
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this adventure?')) {
-      try {
-        await deleteAdventure({
-          variables: { id },
-          update: (cache) => {
-            cache.modify({
-              fields: {
-                karateAdventures(existingAdventures = []) {
-                  return existingAdventures.filter((adventure: any) => adventure.__ref !== `KarateAdventure:${id}`);
-                }
-              }
-            });
-          }
-        });
-        refetch();
-      } catch (err) {
-        console.error('Error deleting adventure:', err);
-        alert('Failed to delete adventure');
-      }
+  const adventures: Adventure[] = data?.karateAdventures || [];
+
+  const handleDelete = async () => {
+    if (!pendingDelete) return;
+    try {
+      await deleteAdventure({
+        variables: { id: pendingDelete.id },
+        update: (cache) => {
+          cache.modify({
+            fields: {
+              karateAdventures(existingAdventures = []) {
+                return existingAdventures.filter(
+                  (a: { __ref: string }) => a.__ref !== `KarateAdventure:${pendingDelete.id}`
+                );
+              },
+            },
+          });
+        },
+      });
+      toast("Adventure deleted", "success");
+      setPendingDelete(null);
+      refetch();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Failed to delete adventure", "error");
     }
   };
 
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-hdki-red"></div>
+  const columns: DataTableColumn<Adventure>[] = [
+    {
+      key: "title",
+      label: "Adventure",
+      render: (adventure) => (
+        <div className="flex items-center gap-3">
+          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-hdki-gray-light">
+            {adventure.coverImage && (
+              <Image src={adventure.coverImage} alt={adventure.title} fill unoptimized sizes="40px" className="object-cover" />
+            )}
+          </div>
+          <span className="font-medium text-hdki-ink">{adventure.title}</span>
         </div>
-      </AdminLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <AdminLayout>
-        <div className="text-center py-12">
-          <p className="text-red-600 mb-4">Error loading adventures: {error.message}</p>
-          <button 
-            onClick={() => refetch()}
-            className="bg-hdki-red hover:bg-hdki-red-dark text-white px-6 py-3 font-semibold transition-colors duration-300"
-          >
-            Try Again
+      ),
+    },
+    {
+      key: "location",
+      label: "Location",
+      render: (adventure) => (
+        <span className="flex items-center gap-1.5 text-hdki-gray-mid">
+          <MapPin className="h-3.5 w-3.5 text-hdki-red" />
+          {adventure.location}
+        </span>
+      ),
+    },
+    {
+      key: "dates",
+      label: "Dates",
+      render: (adventure) => (
+        <span className="flex items-center gap-1.5 text-hdki-gray-mid">
+          <Calendar className="h-3.5 w-3.5 text-hdki-red" />
+          {new Date(adventure.startDate).toLocaleDateString()} - {new Date(adventure.endDate).toLocaleDateString()}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      label: "",
+      className: "text-right",
+      render: (adventure) => (
+        <div className="flex items-center justify-end gap-3">
+          <Link href={`/adventures/${adventure.id}`} className="text-hdki-gray-mid hover:text-hdki-ink" title="View">
+            <Eye className="h-4 w-4" />
+          </Link>
+          <Link href={`/admin/adventures/${adventure.id}/edit`} className="text-hdki-gray-mid hover:text-hdki-red" title="Edit">
+            <Pencil className="h-4 w-4" />
+          </Link>
+          <button onClick={() => setPendingDelete(adventure)} className="text-hdki-gray-mid hover:text-red-600" title="Delete">
+            <Trash2 className="h-4 w-4" />
           </button>
         </div>
-      </AdminLayout>
-    );
-  }
-
-  const adventures = data?.karateAdventures || [];
+      ),
+    },
+  ];
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-light text-gray-900">Karate Adventures</h1>
-            <p className="text-gray-600 mt-2">Manage adventure programs and expeditions</p>
-          </div>
-          <Link
-            href="/admin/adventures/create"
-            className="bg-hdki-red hover:bg-hdki-red-dark text-white px-6 py-3 font-semibold transition-colors duration-300 flex items-center"
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            Add Adventure
-          </Link>
+    <AdminLayout breadcrumbs={[{ label: "Dashboard", href: "/admin" }, { label: "Adventures" }]}>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-2xl font-medium text-hdki-ink">Karate Adventures</h1>
+          <p className="mt-1 text-sm text-hdki-gray-mid">Manage adventure programs and expeditions</p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {adventures.length === 0 ? (
-            <div className="col-span-full text-center py-12">
-              <p className="text-gray-500 mb-4">No adventures found</p>
-              <Link
-                href="/admin/adventures/create"
-                className="bg-hdki-red hover:bg-hdki-red-dark text-white px-6 py-3 font-semibold transition-colors duration-300"
-              >
-                Add First Adventure
-              </Link>
-            </div>
-          ) : (
-            adventures.map((adventure: any) => (
-              <div key={adventure.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                {adventure.coverImage && (
-                  <div className="aspect-w-16 aspect-h-9">
-                    <img
-                      src={adventure.coverImage}
-                      alt={adventure.title}
-                      className="w-full h-48 object-cover"
-                    />
-                  </div>
-                )}
-                
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2">
-                    {adventure.title}
-                  </h3>
-
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <MapPin className="h-4 w-4 mr-2 text-hdki-red" />
-                      <span className="line-clamp-1">{adventure.location}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Calendar className="h-4 w-4 mr-2 text-hdki-red" />
-                      <span>
-                        {new Date(adventure.startDate).toLocaleDateString()} - {new Date(adventure.endDate).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-
-                  <p className="text-gray-600 mb-4 line-clamp-3 text-sm">
-                    {adventure.description}
-                  </p>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Link
-                        href={`/adventures/${adventure.id}`}
-                        className="text-gray-400 hover:text-gray-600"
-                        title="View"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Link>
-                      <Link
-                        href={`/admin/adventures/${adventure.id}/edit`}
-                        className="text-gray-400 hover:text-blue-600"
-                        title="Edit"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(adventure.id)}
-                        className="text-gray-400 hover:text-red-600"
-                        title="Delete"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+        <Button href="/admin/adventures/create" variant="primary" size="sm" icon={<Plus />} iconPosition="left">
+          Add Adventure
+        </Button>
       </div>
+
+      {loading ? (
+        <LoadingState label="Loading adventures..." />
+      ) : error ? (
+        <ErrorState message={`Error loading adventures: ${error.message}`} onRetry={() => refetch()} />
+      ) : adventures.length === 0 ? (
+        <EmptyState icon={<Mountain />} title="No adventures yet" action={{ label: "Add First Adventure", href: "/admin/adventures/create" }} />
+      ) : (
+        <DataTable columns={columns} rows={adventures} rowKey={(adventure) => adventure.id} />
+      )}
+
+      <ConfirmDialog
+        open={!!pendingDelete}
+        title="Delete adventure?"
+        description={pendingDelete ? `"${pendingDelete.title}" will be permanently removed.` : undefined}
+        confirmLabel="Delete"
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
     </AdminLayout>
   );
 }

@@ -1,85 +1,79 @@
 "use client";
 
-import { useQuery } from '@apollo/client';
-import { GET_KARATE_ADVENTURES } from '@/lib/graphql/queries';
-import Layout from '@/components/Layout';
-import Link from 'next/link';
-import { Calendar, MapPin } from 'lucide-react';
+import { useQuery } from "@apollo/client";
+import { GET_KARATE_ADVENTURES } from "@/lib/graphql/queries";
+import Layout from "@/components/Layout";
+import HeroSection from "@/components/ui/HeroSection";
+import Card, { CardImage, CardBody } from "@/components/ui/Card";
+import Reveal from "@/components/ui/Reveal";
+import Button from "@/components/ui/Button";
+import LoadingState from "@/components/ui/LoadingState";
+import ErrorState from "@/components/ui/ErrorState";
+import EmptyState from "@/components/ui/EmptyState";
+import { MapPin, Calendar, ArrowRight, Compass } from "lucide-react";
+
+interface KarateAdventure {
+  id: string;
+  title: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  location: string;
+  coverImage?: string;
+}
 
 export default function AdventuresPage() {
-  const { data, loading, error } = useQuery(GET_KARATE_ADVENTURES);
-
-  if (loading) {
-    return (
-      <Layout>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-hdki-red mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading adventures...</p>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (error) {
-    return (
-      <Layout>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-red-600 mb-4">Error loading adventures: {error.message}</p>
-            <button onClick={() => window.location.reload()} className="bg-hdki-red hover:bg-hdki-red-dark text-white px-6 py-3 font-semibold transition-colors duration-300">Try Again</button>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-
-  const adventures = data?.karateAdventures || [];
+  const { data, loading, error, refetch } = useQuery(GET_KARATE_ADVENTURES);
+  const adventures: KarateAdventure[] = data?.karateAdventures || [];
 
   return (
     <Layout>
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-light text-gray-900 mb-6">Karate Adventures</h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">Upcoming and past adventure programs.</p>
-          </div>
-        </div>
-      </section>
+      <HeroSection
+        image="https://images.unsplash.com/photo-1529630218527-7df22fc2d4ee?q=80&w=2000&auto=format&fit=crop"
+        eyebrow="Karate Adventures"
+        title="Where Martial Arts Meets Adventure"
+        subtitle="The world's first martial arts sports tourism experience — serious karate training set against Kenya's most spectacular landscapes."
+      />
 
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {adventures.length === 0 ? (
-            <div className="text-center py-12">
-              <h3 className="text-2xl font-light text-gray-900 mb-4">No Adventures</h3>
-              <p className="text-gray-600">Check back later.</p>
-            </div>
+      <section className="bg-hdki-gray-light py-14 md:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {loading ? (
+            <LoadingState label="Loading adventures..." />
+          ) : error ? (
+            <ErrorState message={`Error loading adventures: ${error.message}`} onRetry={() => refetch()} />
+          ) : adventures.length === 0 ? (
+            <EmptyState icon={<Compass />} title="No adventures scheduled yet" description="Check back soon for upcoming trips." />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {adventures.map((adv: any) => (
-                <div key={adv.id} className="group bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
-                  <div className="relative">
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {adventures.map((adv, i) => (
+                <Reveal key={adv.id} delay={(i % 3) * 0.1}>
+                  <Card variant="bordered" hover="lift" className="h-full">
                     {adv.coverImage ? (
-                      <img src={adv.coverImage} alt={adv.title} className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
+                      <CardImage src={adv.coverImage} alt={adv.title} ratio="aspect-[4/3]" unoptimized />
                     ) : (
-                      <div className="w-full h-48 bg-gray-100" />
+                      <div className="flex aspect-[4/3] items-center justify-center bg-hdki-gray-light text-hdki-gray-mid">
+                        <Compass className="h-10 w-10" />
+                      </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-hdki-red transition-colors">{adv.title}</h3>
-                    <div className="flex items-center text-sm text-gray-600 mb-2">
-                      <MapPin className="h-4 w-4 mr-2 text-hdki-red" /> {adv.location}
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600 mb-4">
-                      <Calendar className="h-4 w-4 mr-2 text-hdki-red" />
-                      {new Date(adv.startDate).toLocaleDateString()} - {new Date(adv.endDate).toLocaleDateString()}
-                    </div>
-                    <p className="text-gray-600 line-clamp-3 mb-4">{adv.description}</p>
-                    <Link href={`/adventures/${adv.id}`} className="inline-flex items-center bg-hdki-red hover:bg-hdki-red-dark text-white px-4 py-2 text-sm font-medium rounded transition-colors duration-200">View Details</Link>
-                  </div>
-                </div>
+                    <CardBody>
+                      <h3 className="mb-2 font-display text-xl font-medium text-hdki-ink transition-colors group-hover:text-hdki-red">
+                        {adv.title}
+                      </h3>
+                      <div className="mb-1.5 flex items-center gap-2 text-sm text-hdki-gray-mid">
+                        <MapPin className="h-4 w-4 text-hdki-red" />
+                        {adv.location}
+                      </div>
+                      <div className="mb-4 flex items-center gap-2 text-sm text-hdki-gray-mid">
+                        <Calendar className="h-4 w-4 text-hdki-red" />
+                        {new Date(adv.startDate).toLocaleDateString()} – {new Date(adv.endDate).toLocaleDateString()}
+                      </div>
+                      <p className="mb-5 line-clamp-3 text-sm text-hdki-gray-mid">{adv.description}</p>
+                      <Button href={`/adventures/${adv.id}`} variant="primary" size="sm" icon={<ArrowRight />}>
+                        View Details
+                      </Button>
+                    </CardBody>
+                  </Card>
+                </Reveal>
               ))}
             </div>
           )}
@@ -88,5 +82,3 @@ export default function AdventuresPage() {
     </Layout>
   );
 }
-
-

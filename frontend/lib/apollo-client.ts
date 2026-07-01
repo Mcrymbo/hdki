@@ -5,7 +5,7 @@ import { onError } from '@apollo/client/link/error';
 
 const httpLink = createUploadLink({
   uri: process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8000/graphql/',
-}) as any;
+});
 
 const authLink = setContext((_, { headers }) => {
   const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;

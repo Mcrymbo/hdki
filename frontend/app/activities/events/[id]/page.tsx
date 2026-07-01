@@ -1,29 +1,24 @@
 "use client";
 
-import { useQuery } from '@apollo/client';
-import { GET_EVENT } from '@/lib/graphql/queries';
-import Link from "next/link";
+import { useQuery } from "@apollo/client";
+import { GET_EVENT } from "@/lib/graphql/queries";
 import { useParams } from "next/navigation";
+import Image from "next/image";
 import Layout from "@/components/Layout";
-import { Calendar, MapPin, Users, Trophy, Clock, ArrowLeft, Ticket } from "lucide-react";
+import Button from "@/components/ui/Button";
+import Reveal from "@/components/ui/Reveal";
+import LoadingState from "@/components/ui/LoadingState";
+import ErrorState from "@/components/ui/ErrorState";
+import { MapPin, Calendar, Ticket, Users, ArrowRight, MessageCircle } from "lucide-react";
 
 export default function EventDetail() {
   const { id } = useParams<{ id: string }>();
-  
-  const { data, loading, error } = useQuery(GET_EVENT, {
-    variables: { id },
-    skip: !id,
-  });
+  const { data, loading, error, refetch } = useQuery(GET_EVENT, { variables: { id }, skip: !id });
 
   if (loading) {
     return (
       <Layout>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin w-12 h-12 border-4 border-hdki-red border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading event details...</p>
-          </div>
-        </div>
+        <LoadingState label="Loading event..." />
       </Layout>
     );
   }
@@ -31,227 +26,92 @@ export default function EventDetail() {
   if (error || !data?.event) {
     return (
       <Layout>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Event Not Found</h1>
-            <p className="text-gray-600 mb-8">
-              {error ? error.message : "The event you're looking for doesn't exist."}
-            </p>
-            <Link
-              href="/activities/events"
-              className="bg-hdki-red hover:bg-hdki-red-dark text-white px-6 py-3 font-semibold transition-colors duration-300"
-            >
-              Back to Events
-            </Link>
-          </div>
-        </div>
+        <ErrorState
+          message={error ? error.message : "The event you are looking for does not exist."}
+          onRetry={error ? () => refetch() : undefined}
+        />
       </Layout>
     );
   }
 
   const event = data.event;
+  const spotsLimited = typeof event.maxParticipants === "number" && event.maxParticipants > 0;
+  const registered = event.currentRegistrations || 0;
 
   return (
     <Layout>
-      {/* Back Navigation */}
-      <section className="py-6 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/activities/events"
-            className="text-hdki-red hover:text-hdki-red-dark inline-flex items-center text-sm font-medium"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Events
-          </Link>
+      <section className="relative flex h-80 items-end overflow-hidden bg-hdki-ink md:h-96">
+        {event.coverImage ? (
+          <Image src={event.coverImage} alt={event.title} fill priority unoptimized sizes="100vw" className="object-cover" />
+        ) : null}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
+          <span className="mb-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-hdki-red">
+            <span className="h-px w-6 bg-hdki-red" />
+            {event.location}
+          </span>
+          <h1 className="font-display text-3xl font-medium text-white sm:text-4xl md:text-5xl">{event.title}</h1>
         </div>
       </section>
 
-      {/* Event Header */}
-      <section className="py-12 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-light text-gray-900 mb-6 leading-tight">
-                {event.title}
-              </h1>
-              
-              <div className="space-y-4 mb-8">
-                <div className="flex items-center text-lg text-gray-600">
-                  <Calendar className="h-5 w-5 mr-3 text-hdki-red" />
-                  <time dateTime={event.date}>
-                    {new Date(event.date).toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </time>
-                </div>
-                
-                <div className="flex items-center text-lg text-gray-600">
-                  <MapPin className="h-5 w-5 mr-3 text-hdki-red" />
-                  <span>{event.location}</span>
-                </div>
+      <section className="bg-white py-14 md:py-20">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <Reveal>
+                <p className="mb-10 text-lg leading-relaxed text-hdki-ink">{event.description}</p>
+              </Reveal>
+            </div>
 
-                <div className="flex items-center text-lg text-gray-600">
-                  <Ticket className="h-5 w-5 mr-3 text-hdki-red" />
-                  <span className="font-semibold text-hdki-red">
-                    {event.fee > 0 ? `KSh ${event.fee}` : 'Free Event'}
-                  </span>
-                </div>
-
-                {event.maxParticipants && (
-                  <div className="flex items-center text-lg text-gray-600">
-                    <Users className="h-5 w-5 mr-3 text-hdki-red" />
-                    <span>
-                      {event.currentRegistrations || 0} / {event.maxParticipants} registered
+            <Reveal direction="left" className="lg:col-span-1">
+              <div className="rounded-sm border border-hdki-border bg-hdki-gray-light p-6">
+                <h3 className="mb-4 font-display text-lg font-medium text-hdki-ink">Event Details</h3>
+                <div className="mb-6 space-y-3 text-sm">
+                  <div className="flex items-start gap-3">
+                    <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-hdki-red" />
+                    <span className="text-hdki-ink">
+                      {new Date(event.date).toLocaleDateString("en-US", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
                     </span>
                   </div>
-                )}
-              </div>
-
-              <div className="flex space-x-4">
-                <Link
-                  href={`/activities/events/register?event=${event.id}`}
-                  className="bg-hdki-red hover:bg-hdki-red-dark text-white px-8 py-3 font-semibold transition-colors duration-300"
-                >
-                  Register Now
-                </Link>
-                <Link
-                  href="/activities/events"
-                  className="border-2 border-hdki-red text-hdki-red hover:bg-hdki-red hover:text-white px-8 py-3 font-semibold transition-all duration-300"
-                >
-                  View All Events
-                </Link>
-              </div>
-            </div>
-
-            {event.coverImage && (
-              <div className="order-first lg:order-last">
-                <img
-                  src={event.coverImage}
-                  alt={event.title}
-                  className="w-full h-64 lg:h-96 object-cover rounded-lg shadow-lg"
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Event Details */}
-      <section className="py-12 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-lg shadow-lg p-8">
-                <h2 className="text-2xl font-semibold text-gray-900 mb-6">Event Description</h2>
-                <div className="prose prose-lg max-w-none">
-                  <p className="text-gray-700 leading-relaxed">
-                    {event.description}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              {/* Event Info Card */}
-              <div className="bg-white rounded-lg shadow-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Event Information</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Calendar className="h-4 w-4 mr-2 text-hdki-red" />
-                    <div>
-                      <p className="font-medium">Date</p>
-                      <p>{new Date(event.date).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}</p>
-                    </div>
+                  <div className="flex items-start gap-3">
+                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-hdki-red" />
+                    <span className="text-hdki-ink">{event.location}</span>
                   </div>
-
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Clock className="h-4 w-4 mr-2 text-hdki-red" />
-                    <div>
-                      <p className="font-medium">Time</p>
-                      <p>{new Date(event.date).toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}</p>
-                    </div>
+                  <div className="flex items-start gap-3">
+                    <Ticket className="mt-0.5 h-4 w-4 shrink-0 text-hdki-red" />
+                    <span className="font-medium text-hdki-red">
+                      {event.fee > 0 ? `KSh ${event.fee}` : "Free Event"}
+                    </span>
                   </div>
-
-                  <div className="flex items-center text-sm text-gray-600">
-                    <MapPin className="h-4 w-4 mr-2 text-hdki-red" />
-                    <div>
-                      <p className="font-medium">Location</p>
-                      <p>{event.location}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Ticket className="h-4 w-4 mr-2 text-hdki-red" />
-                    <div>
-                      <p className="font-medium">Fee</p>
-                      <p className="font-semibold text-hdki-red">
-                        {event.fee > 0 ? `KSh ${event.fee}` : 'Free'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {event.maxParticipants && (
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Users className="h-4 w-4 mr-2 text-hdki-red" />
-                      <div>
-                        <p className="font-medium">Capacity</p>
-                        <p>{event.currentRegistrations || 0} / {event.maxParticipants}</p>
-                      </div>
+                  {spotsLimited && (
+                    <div className="flex items-start gap-3">
+                      <Users className="mt-0.5 h-4 w-4 shrink-0 text-hdki-red" />
+                      <span className="text-hdki-ink">
+                        {registered} / {event.maxParticipants} registered
+                      </span>
                     </div>
                   )}
                 </div>
+                <div className="flex flex-col gap-3">
+                  <Button
+                    href={`/activities/events/register?event=${event.id}`}
+                    variant="primary"
+                    size="sm"
+                    icon={<ArrowRight />}
+                  >
+                    Register Now
+                  </Button>
+                  <Button href="/content/contact" variant="outline" size="sm" icon={<MessageCircle />}>
+                    Ask a Question
+                  </Button>
+                </div>
               </div>
-
-              {/* Registration Card */}
-              <div className="bg-hdki-red text-white rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Ready to Join?</h3>
-                <p className="text-sm mb-4">
-                  Don't miss out on this exciting event. Register now to secure your spot.
-                </p>
-                <Link
-                  href={`/activities/events/register?event=${event.id}`}
-                  className="block w-full bg-white text-hdki-red hover:bg-gray-100 text-center px-4 py-2 font-semibold transition-colors duration-200"
-                >
-                  Register Now
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Call to Action */}
-      <section className="py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-light text-gray-900 mb-6">
-            Explore More Events
-          </h2>
-          <p className="text-lg text-gray-600 mb-8">
-            Discover other exciting events and programs offered by HDKI Kenya.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/activities/events"
-              className="bg-hdki-red hover:bg-hdki-red-dark text-white px-8 py-3 font-semibold transition-colors duration-300"
-            >
-              View All Events
-            </Link>
-            <Link
-              href="/activities/news"
-              className="border-2 border-hdki-red text-hdki-red hover:bg-hdki-red hover:text-white px-8 py-3 font-semibold transition-all duration-300"
-            >
-              Read Latest News
-            </Link>
+            </Reveal>
           </div>
         </div>
       </section>

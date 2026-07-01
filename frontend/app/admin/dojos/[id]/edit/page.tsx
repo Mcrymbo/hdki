@@ -6,21 +6,28 @@ import { useQuery, useMutation } from "@apollo/client";
 import { GET_DOJO_LOCATION } from "@/lib/graphql/queries";
 import { UPDATE_DOJO_LOCATION } from "@/lib/graphql/mutations";
 import AdminLayout from "@/components/admin/AdminLayout";
+import AccessDenied from "@/components/admin/ui/AccessDenied";
+import { useToast } from "@/components/admin/ui/Toast";
+import LoadingState from "@/components/ui/LoadingState";
+import { Input, Textarea } from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
+import { Save } from "lucide-react";
 
 export default function EditDojoPage() {
   const router = useRouter();
   const params = useParams();
   const { isAdmin } = useAuth();
+  const { toast } = useToast();
   const id = String(params?.id || "");
 
   const { data, loading: loadingQuery } = useQuery(GET_DOJO_LOCATION, { variables: { id }, skip: !id });
   const [updateDojo, { loading }] = useMutation(UPDATE_DOJO_LOCATION, {
     onCompleted: () => {
-      alert("Dojo updated successfully");
+      toast("Dojo updated successfully", "success");
       router.push("/admin/dojos");
     },
-    onError: (e) => alert(e.message),
+    onError: (e) => toast(e.message, "error"),
   });
 
   const [form, setForm] = useState({
@@ -52,12 +59,9 @@ export default function EditDojoPage() {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Access Denied</h1>
-          <p className="text-gray-600">You need admin privileges to access this page.</p>
-        </div>
-      </div>
+      <AdminLayout>
+        <AccessDenied />
+      </AdminLayout>
     );
   }
 
@@ -78,94 +82,76 @@ export default function EditDojoPage() {
   };
 
   return (
-    <AdminLayout>
-      <div className="max-w-3xl mx-auto bg-white shadow p-6">
-        <h1 className="text-2xl font-light text-gray-900 mb-6">Edit Dojo Location</h1>
+    <AdminLayout
+      breadcrumbs={[
+        { label: "Dashboard", href: "/admin" },
+        { label: "Dojo Locations", href: "/admin/dojos" },
+        { label: "Edit" },
+      ]}
+    >
+      <div className="mx-auto max-w-3xl">
+        <h1 className="mb-6 font-display text-2xl font-medium text-hdki-ink">Edit Dojo Location</h1>
         {loadingQuery ? (
-          <div className="py-12 text-center">Loading...</div>
+          <LoadingState label="Loading dojo..." />
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm text-gray-700 mb-1">Name</label>
-              <input
-                className="w-full border px-3 py-2"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
+          <form onSubmit={handleSubmit} className="space-y-5 rounded-sm border border-hdki-border bg-white p-6">
+            <Input
+              label="Name"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              error={errors.name}
+            />
+            <Input
+              label="Address"
+              value={form.address}
+              onChange={(e) => setForm({ ...form, address: e.target.value })}
+              error={errors.address}
+            />
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <Input
+                label="City"
+                value={form.city}
+                onChange={(e) => setForm({ ...form, city: e.target.value })}
+                error={errors.city}
               />
-              {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
-            </div>
-            <div>
-              <label className="block text-sm text-gray-700 mb-1">Address</label>
-              <input
-                className="w-full border px-3 py-2"
-                value={form.address}
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-              />
-              {errors.address && <p className="text-sm text-red-600">{errors.address}</p>}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm text-gray-700 mb-1">City</label>
-                <input
-                  className="w-full border px-3 py-2"
-                  value={form.city}
-                  onChange={(e) => setForm({ ...form, city: e.target.value })}
-                />
-                {errors.city && <p className="text-sm text-red-600">{errors.city}</p>}
-              </div>
-              <div>
-                <label className="block text-sm text-gray-700 mb-1">Country</label>
-                <input
-                  className="w-full border px-3 py-2"
-                  value={form.country}
-                  onChange={(e) => setForm({ ...form, country: e.target.value })}
-                />
-                {errors.country && <p className="text-sm text-red-600">{errors.country}</p>}
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm text-gray-700 mb-1">Google Map Link</label>
-              <input
-                className="w-full border px-3 py-2"
-                value={form.mapLink}
-                onChange={(e) => setForm({ ...form, mapLink: e.target.value })}
+              <Input
+                label="Country"
+                value={form.country}
+                onChange={(e) => setForm({ ...form, country: e.target.value })}
+                error={errors.country}
               />
             </div>
+            <Input
+              label="Google Map Link"
+              value={form.mapLink}
+              onChange={(e) => setForm({ ...form, mapLink: e.target.value })}
+            />
             <div>
-              <label className="block text-sm text-gray-700 mb-1">Cover Image URL</label>
-              <input
-                className="w-full border px-3 py-2"
+              <Input
+                label="Cover Image URL"
                 value={form.coverImage}
                 onChange={(e) => setForm({ ...form, coverImage: e.target.value })}
               />
-              <div className="mt-2">
-                <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm text-gray-700 mb-1">Description</label>
-              <textarea
-                className="w-full border px-3 py-2"
-                rows={4}
-                value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                className="mt-2 block w-full text-sm text-hdki-gray-mid file:mr-3 file:rounded-sm file:border-0 file:bg-hdki-gray-light file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-hdki-ink hover:file:bg-hdki-border"
               />
             </div>
-            <div className="flex gap-3">
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-hdki-red hover:bg-hdki-red-dark text-white px-6 py-2 font-semibold disabled:opacity-60"
-              >
-                {loading ? "Saving..." : "Save Changes"}
-              </button>
-              <button
-                type="button"
-                onClick={() => router.push("/admin/dojos")}
-                className="border px-6 py-2"
-              >
+            <Textarea
+              label="Description"
+              rows={4}
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+            />
+            <div className="flex gap-3 pt-2">
+              <Button type="submit" variant="primary" size="md" loading={loading} icon={<Save />}>
+                Save Changes
+              </Button>
+              <Button type="button" variant="outline" size="md" onClick={() => router.push("/admin/dojos")}>
                 Cancel
-              </button>
+              </Button>
             </div>
           </form>
         )}
@@ -173,5 +159,3 @@ export default function EditDojoPage() {
     </AdminLayout>
   );
 }
-
-
