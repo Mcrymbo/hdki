@@ -58,8 +58,9 @@ export default function Index() {
         image={heroImg}
         eyebrow="HDKI Kenya"
         title="Tradition Meets Adventure"
-        subtitle="Traditional Shotokan karate training fused with Kenya's world-class adventure tourism — discipline, culture, and exploration in one unforgettable journey."
+        subtitle="Shotokan karate training meets Kenya's world-class adventure tourism."
         height="full"
+        imagePosition="top"
       >
         <Button href="/adventures" variant="primary" size="lg" icon={<ArrowRight />}>
           Explore Karate Adventures

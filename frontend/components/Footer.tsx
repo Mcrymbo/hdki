@@ -53,7 +53,7 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <Mail className="h-4 w-4 shrink-0 text-hdki-red" />
-                <span className="text-sm text-gray-400">info@hdkikenya.org</span>
+                <span className="text-sm text-gray-400">info@hdkikenya.co.ke</span>
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="h-4 w-4 shrink-0 text-hdki-red" />
