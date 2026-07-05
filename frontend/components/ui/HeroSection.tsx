@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
+import Image, { type StaticImageData } from "next/image";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/cn";
 
 interface HeroSectionProps {
-  image: string;
+  image: string | StaticImageData;
   title: string;
   subtitle?: string;
   eyebrow?: string;
@@ -39,7 +39,7 @@ export default function HeroSection({
         alt=""
         fill
         priority
-        unoptimized
+        unoptimized={typeof image === "string"}
         sizes="100vw"
         className="object-cover"
       />

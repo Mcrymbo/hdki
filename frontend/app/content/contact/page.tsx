@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import heroImg from "@/assets/images/im10.jpeg";
 import { useMutation } from '@apollo/client';
 import { CREATE_CONTACT_MESSAGE } from '@/lib/graphql/mutations';
 import Layout from "@/components/Layout";
@@ -114,7 +115,7 @@ export default function Contact() {
   return (
     <Layout>
       <HeroSection
-        image="https://images.unsplash.com/photo-1603210185246-b1662978ea37?q=80&w=2000&auto=format&fit=crop"
+        image={heroImg}
         eyebrow="Get In Touch"
         title="Contact Us"
         subtitle="Start Your Martial Arts Journey Today"

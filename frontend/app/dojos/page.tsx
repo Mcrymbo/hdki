@@ -2,6 +2,7 @@
 
 import { useQuery } from "@apollo/client";
 import { GET_DOJO_LOCATIONS } from "@/lib/graphql/queries";
+import heroImg from "@/assets/images/joshua.png";
 import Layout from "@/components/Layout";
 import HeroSection from "@/components/ui/HeroSection";
 import Card, { CardImage, CardBody } from "@/components/ui/Card";
@@ -30,7 +31,7 @@ export default function DojosPage() {
   return (
     <Layout>
       <HeroSection
-        image="https://images.unsplash.com/photo-1598300606161-4019d0dfec28?q=80&w=2000&auto=format&fit=crop"
+        image={heroImg}
         eyebrow="Find Your Dojo"
         title="Dojo Locations"
         subtitle="HDKI Kenya operates training centers across the country, each offering authentic martial arts instruction from certified instructors."

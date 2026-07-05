@@ -2,6 +2,15 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import teamImg from "@/assets/images/img4.jpeg";
+import bagKickImg from "@/assets/images/im14.jpeg";
+import padsImg from "@/assets/images/im1.png";
+import judgesImg from "@/assets/images/im9.jpeg";
+import medalImg from "@/assets/images/im6.jpeg";
+import mentorshipImg from "@/assets/images/img3.jpeg";
+import familyImg from "@/assets/images/im4.png";
+import flagImg from "@/assets/images/im11.jpeg";
+import gradingImg from "@/assets/images/im7.jpeg";
 import Lightbox from "./Lightbox";
 import Button from "@/components/ui/Button";
 import SectionHeading from "@/components/ui/SectionHeading";
@@ -11,69 +20,75 @@ import { cn } from "@/lib/cn";
 
 const trainingImages = [
   {
-    src: "https://images.unsplash.com/photo-1476525223214-c31ff100e1ae?q=80&w=800&auto=format&fit=crop",
-    alt: "Karate practitioner training on the beach at sunset",
-    title: "Beach Training at Sunset",
-    location: "Mombasa Coastal Dojo",
+    src: teamImg,
+    alt: "HDKI Kenya squad posing together after a training session",
+    title: "Team Spirit & Unity",
+    location: "HDKI Kenya, Nairobi",
     span: "col-span-12 md:col-span-6 row-span-1 md:row-span-2 h-64 md:h-full",
   },
   {
-    src: "https://images.unsplash.com/photo-1598300606161-4019d0dfec28?q=80&w=800&auto=format&fit=crop",
-    alt: "Karateka training inside a traditional dojo",
-    title: "Traditional Dojo Training",
-    location: "HDKI Kenya Headquarters",
-    span: "col-span-6 md:col-span-3 h-32 md:h-48",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1529630218527-7df22fc2d4ee?q=80&w=800&auto=format&fit=crop",
-    alt: "Outdoor sparring session with a flying kick",
-    title: "Outdoor Conditioning & Sparring",
-    location: "Mount Kenya Training Camp",
-    span: "col-span-6 md:col-span-3 h-32 md:h-48",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1514050566906-8d077bae7046?q=80&w=800&auto=format&fit=crop",
-    alt: "Competitor performing a flying kick during tournament training",
-    title: "Tournament Preparation",
-    location: "Nairobi Competition Dojo",
-    span: "col-span-4 md:col-span-2 h-24 md:h-32",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1656653121526-a1458317b790?q=80&w=800&auto=format&fit=crop",
-    alt: "Close-up of a focused karate punch",
-    title: "Focused Technique Training",
-    location: "Nakuru Training Center",
-    span: "col-span-4 md:col-span-2 h-24 md:h-32",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1577998555981-6e798325914e?q=80&w=800&auto=format&fit=crop",
-    alt: "Silhouette of a karate punch at sunset",
-    title: "Sunset Discipline Session",
-    location: "Maasai Mara Adventure Camp",
-    span: "col-span-4 md:col-span-2 h-24 md:h-32",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1583668023935-b79e1c1af0a2?q=80&w=800&auto=format&fit=crop",
-    alt: "Young students practicing karate outdoors",
-    title: "Youth Development Program",
-    location: "Community Outreach Center",
-    span: "col-span-6 md:col-span-4 h-32 md:h-40",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1529566193698-bc394165d541?q=80&w=800&auto=format&fit=crop",
-    alt: "Group of karateka meditating together outdoors",
-    title: "Meditation & Philosophy",
-    location: "Lake Nakuru Retreat",
-    span: "col-span-6 md:col-span-4 h-32 md:h-40",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1603210185246-b1662978ea37?q=80&w=800&auto=format&fit=crop",
-    alt: "Hands tying a karate belt",
-    title: "Belt Ceremony & Progression",
+    src: bagKickImg,
+    alt: "Karateka delivering a strong front kick to a heavy bag",
+    title: "Striking Power & Precision",
     location: "HDKI Kenya Dojo",
+    span: "col-span-6 md:col-span-3 h-32 md:h-48",
+  },
+  {
+    src: padsImg,
+    alt: "Students posing with a free-standing punch bag in the training gym",
+    title: "Strength & Conditioning",
+    location: "Nairobi Training Gym",
+    span: "col-span-6 md:col-span-3 h-32 md:h-48",
+  },
+  {
+    src: judgesImg,
+    alt: "Kata judges seated with signal flags at a tournament",
+    title: "Tournament Officiating",
+    location: "National Championships",
+    span: "col-span-4 md:col-span-2 h-24 md:h-32",
+  },
+  {
+    src: medalImg,
+    alt: "Competitor smiling and holding his medal after a match",
+    title: "Podium Moments",
+    location: "National Karate Championships",
+    span: "col-span-4 md:col-span-2 h-24 md:h-32",
+  },
+  {
+    src: mentorshipImg,
+    alt: "A senior instructor and student sharing a warm moment in the dojo",
+    title: "Mentorship Across Generations",
+    location: "HDKI Kenya Dojo",
+    span: "col-span-4 md:col-span-2 h-24 md:h-32",
+  },
+  {
+    src: familyImg,
+    alt: "HDKI Kenya members celebrating together indoors",
+    title: "One HDKI Family",
+    location: "HDKI Kenya Community",
+    span: "col-span-6 md:col-span-4 h-32 md:h-40",
+  },
+  {
+    src: flagImg,
+    alt: "HDKI Kenya members holding the national flag outside the Paralympic Gymnasium",
+    title: "Representing Kenya",
+    location: "Paralympic Gymnasium, Nairobi",
+    span: "col-span-6 md:col-span-4 h-32 md:h-40",
+  },
+  {
+    src: gradingImg,
+    alt: "Instructor receiving his ceremonial haori during a grading ceremony",
+    title: "Belt Ceremony & Progression",
+    location: "HDKI Kenya Grading",
     span: "col-span-12 md:col-span-4 h-32 md:h-40",
   },
 ];
+
+const lightboxImages = trainingImages.map((image) => ({
+  src: image.src.src,
+  alt: image.alt,
+  title: image.title,
+}));
 
 export default function TrainingSessions() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -105,7 +120,6 @@ export default function TrainingSessions() {
                   src={image.src}
                   alt={image.alt}
                   fill
-                  unoptimized
                   sizes="(min-width: 768px) 33vw, 100vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
@@ -135,7 +149,7 @@ export default function TrainingSessions() {
       </div>
 
       {lightboxOpen && (
-        <Lightbox images={trainingImages} currentIndex={lightboxIndex} onClose={() => setLightboxOpen(false)} />
+        <Lightbox images={lightboxImages} currentIndex={lightboxIndex} onClose={() => setLightboxOpen(false)} />
       )}
     </section>
   );

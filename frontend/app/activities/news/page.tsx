@@ -2,6 +2,7 @@
 
 import { useQuery } from "@apollo/client";
 import { GET_NEWS } from "@/lib/graphql/queries";
+import heroImg from "@/assets/images/im5.jpeg";
 import Layout from "@/components/Layout";
 import HeroSection from "@/components/ui/HeroSection";
 import Card, { CardImage, CardBody } from "@/components/ui/Card";
@@ -42,7 +43,7 @@ export default function News() {
   return (
     <Layout>
       <HeroSection
-        image="https://images.unsplash.com/photo-1608583252022-09323426b8b6?q=80&w=2000&auto=format&fit=crop"
+        image={heroImg}
         eyebrow="Latest Updates"
         title="HDKI Kenya News"
         subtitle="Stay updated with the latest news, achievements, and developments from HDKI Kenya. From tournament victories to new programs and community initiatives."

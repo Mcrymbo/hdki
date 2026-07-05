@@ -1,4 +1,6 @@
 import Image from "next/image";
+import heroImg from "@/assets/images/im2.png";
+import missionImg from "@/assets/images/im13.jpeg";
 import Layout from "@/components/Layout";
 import TrainingSessions from "@/components/TrainingHolder";
 import Button from "@/components/ui/Button";
@@ -53,7 +55,7 @@ export default function Index() {
   return (
     <Layout>
       <HeroSection
-        image="https://images.unsplash.com/photo-1555597673-b21d5c935865?q=80&w=2000&auto=format&fit=crop"
+        image={heroImg}
         eyebrow="HDKI Kenya"
         title="Tradition Meets Adventure"
         subtitle="Traditional Shotokan karate training fused with Kenya's world-class adventure tourism — discipline, culture, and exploration in one unforgettable journey."
@@ -101,10 +103,9 @@ export default function Index() {
             <Reveal direction="right">
               <div className="relative aspect-[4/3] overflow-hidden rounded-sm">
                 <Image
-                  src="https://images.unsplash.com/photo-1656653399674-446838d45998?q=80&w=1200&auto=format&fit=crop"
-                  alt="HDKI Kenya karate instructor in a focused training stance"
+                  src={missionImg}
+                  alt="HDKI Kenya karateka executing a focused turning technique in the dojo"
                   fill
-                  unoptimized
                   sizes="(min-width: 768px) 50vw, 100vw"
                   className="object-cover"
                 />

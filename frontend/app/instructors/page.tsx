@@ -2,6 +2,7 @@
 
 import { useQuery } from '@apollo/client';
 import { GET_INSTRUCTORS } from '@/lib/graphql/queries';
+import heroImg from "@/assets/images/im7.jpeg";
 import Layout from '@/components/Layout';
 import HeroSection from "@/components/ui/HeroSection";
 import Card, { CardImage, CardBody } from "@/components/ui/Card";
@@ -35,7 +36,7 @@ export default function InstructorsPage() {
   return (
     <Layout>
       <HeroSection
-        image="https://images.unsplash.com/photo-1656653121475-e33829581294?q=80&w=2000&auto=format&fit=crop"
+        image={heroImg}
         eyebrow="Meet The Team"
         title="Instructors"
         subtitle="Meet our certified HDKI instructors and the dojos they lead across Kenya."

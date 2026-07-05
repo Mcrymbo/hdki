@@ -2,6 +2,7 @@
 
 import { useQuery } from '@apollo/client';
 import { GET_GALLERY_ITEMS } from '@/lib/graphql/queries';
+import heroImg from "@/assets/images/im12.jpeg";
 import Layout from '@/components/Layout';
 import HeroSection from "@/components/ui/HeroSection";
 import Reveal from "@/components/ui/Reveal";
@@ -31,7 +32,7 @@ export default function GalleryPage() {
   return (
     <Layout>
       <HeroSection
-        image="https://images.unsplash.com/photo-1555597408-26bc8e548a46?q=80&w=2000&auto=format&fit=crop"
+        image={heroImg}
         eyebrow="Moments"
         title="Gallery"
         subtitle="Explore moments from HDKI Kenya activities, training sessions, and adventures."

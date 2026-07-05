@@ -2,6 +2,7 @@
 
 import { useQuery } from "@apollo/client";
 import { GET_EVENTS } from "@/lib/graphql/queries";
+import heroImg from "@/assets/images/im9.jpeg";
 import Layout from "@/components/Layout";
 import HeroSection from "@/components/ui/HeroSection";
 import Card, { CardImage, CardBody } from "@/components/ui/Card";
@@ -42,7 +43,7 @@ export default function Events() {
   return (
     <Layout>
       <HeroSection
-        image="https://images.unsplash.com/photo-1514050566906-8d077bae7046?q=80&w=2000&auto=format&fit=crop"
+        image={heroImg}
         eyebrow="Activities"
         title="HDKI Kenya Events"
         subtitle="Join us for exciting tournaments, training camps, seminars, and adventure programs. From local competitions to international expeditions, there's something for everyone."

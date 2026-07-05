@@ -1,4 +1,6 @@
 import Image from "next/image";
+import heroImg from "@/assets/images/im3.jpeg";
+import storyImg from "@/assets/images/im8.jpeg";
 import Layout from "@/components/Layout";
 import HeroSection from "@/components/ui/HeroSection";
 import SectionHeading from "@/components/ui/SectionHeading";
@@ -72,7 +74,7 @@ export default function About() {
   return (
     <Layout>
       <HeroSection
-        image="https://images.unsplash.com/photo-1656653424873-8491cd7bf5f8?q=80&w=2000&auto=format&fit=crop"
+        image={heroImg}
         eyebrow="About Us"
         title="About HDKI Kenya"
         subtitle="Preserving Tradition, Pioneering Adventure"
@@ -109,10 +111,9 @@ export default function About() {
             <Reveal direction="left">
               <div className="relative aspect-[4/3] overflow-hidden rounded-sm">
                 <Image
-                  src="https://images.unsplash.com/photo-1560631820-ecf9d56ba39e?q=80&w=1200&auto=format&fit=crop"
-                  alt="Karateka sparring outdoors during training"
+                  src={storyImg}
+                  alt="HDKI Kenya karateka training together outdoors"
                   fill
-                  unoptimized
                   sizes="(min-width: 1024px) 50vw, 100vw"
                   className="object-cover"
                 />
