@@ -86,12 +86,16 @@ export default function About() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
             <Reveal direction="right">
-              <SectionHeading eyebrow="Since 1971" title="Our Story" align="left" />
+              <SectionHeading eyebrow="Since 2023" title="Our Story" align="left" />
               <p className="mb-8 text-xl leading-relaxed text-hdki-ink">
-                HDKI Kenya represents the evolution of Kenya&apos;s rich martial arts heritage, building upon a
-                foundation established when karate was first introduced to the country on August 20, 1971. Four
-                Japanese experts arrived in Nairobi, brought by the Kenya Defense Forces and Japanese Overseas
-                Cooperation Volunteers, marking the beginning of a transformative journey.
+                HDKI Kenya has been active in Kenya since January 2023, evolving from
+                Shotokan United Kenya, which grew out of JKA Kenya under the leadership
+                of Sensei Joshua Oude. Founded by Sensei George in the early 2000s,
+                the organization has expanded into today&apos;s HDKI Kenya, promoting karate
+                nationwide through dojos, schools, universities, and young karatekas.
+                Registered with the country&apos;s governing body (KKF), HDKI Kenya is led
+                technically by Musoga Goodric as Technical Director and Sensei Joshua
+                Oude as Chief Instructor.
               </p>
               <p className="text-lg leading-relaxed text-hdki-gray-mid">
                 As an official affiliate of{" "}

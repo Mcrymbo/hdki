@@ -35,19 +35,19 @@ const testimonials = [
     quote:
       "Training on the shores of Lake Nakuru while watching flamingos was a once-in-a-lifetime experience. The instructors were phenomenal and the cultural immersion was incredible.",
     name: "Sarah Mitchell",
-    detail: "Black Belt, Canada",
+    detail: "Black Belt, Nairobi",
   },
   {
     quote:
       "HDKI Kenya's adventure program exceeded all expectations. The combination of serious martial arts training and authentic safari experiences was perfectly balanced.",
-    name: "Takeshi Yamamoto",
-    detail: "Instructor, Japan",
+    name: "Rose Stewart",
+    detail: "Instructor, HDKI Ireland",
   },
   {
     quote:
       "The cultural exchange with local Kenyan martial artists and the mountain training camps created memories that will last forever. Highly recommend to any serious practitioner.",
-    name: "Maria Rodriguez",
-    detail: "Tournament Champion, Spain",
+    name: "Simon Bligh",
+    detail: "Instructor, HDKI, UK",
   },
 ];
 
