@@ -61,6 +61,7 @@ export default function Index() {
         subtitle="Shotokan karate training meets Kenya's world-class adventure tourism."
         height="full"
         imagePosition="top"
+        contentPosition="bottom"
         hideSubtitleOnMobile
       >
         <Button href="/adventures" variant="primary" size="lg" icon={<ArrowRight />} className="w-full sm:w-auto">

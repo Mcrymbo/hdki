@@ -12,6 +12,7 @@ interface HeroSectionProps {
   height?: "sm" | "md" | "lg" | "full";
   align?: "center" | "left";
   imagePosition?: "center" | "top" | "bottom";
+  contentPosition?: "center" | "bottom";
   hideSubtitleOnMobile?: boolean;
   children?: React.ReactNode;
   className?: string;
@@ -27,7 +28,7 @@ const heightClasses: Record<NonNullable<HeroSectionProps["height"]>, string> = {
   sm: "h-64 md:h-80",
   md: "h-96",
   lg: "h-[32rem]",
-  full: "min-h-screen min-h-[100svh] py-28",
+  full: "min-h-screen min-h-[100svh] pb-16 pt-28 sm:pb-24",
 };
 
 export default function HeroSection({
@@ -38,12 +39,20 @@ export default function HeroSection({
   height = "md",
   align = "center",
   imagePosition = "center",
+  contentPosition = "center",
   hideSubtitleOnMobile = false,
   children,
   className,
 }: HeroSectionProps) {
   return (
-    <section className={cn("relative flex items-center overflow-hidden bg-hdki-ink", heightClasses[height], className)}>
+    <section
+      className={cn(
+        "relative flex overflow-hidden bg-hdki-ink",
+        contentPosition === "bottom" ? "items-end" : "items-center",
+        heightClasses[height],
+        className
+      )}
+    >
       <Image
         src={image}
         alt=""
@@ -54,7 +63,14 @@ export default function HeroSection({
         className={cn("object-cover", imagePositionClasses[imagePosition])}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/40 to-black/20" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.45)_0%,rgba(0,0,0,0.15)_55%,transparent_80%)]" />
+      <div
+        className={cn(
+          "absolute inset-0",
+          contentPosition === "bottom"
+            ? "bg-[radial-gradient(ellipse_at_bottom,rgba(0,0,0,0.5)_0%,rgba(0,0,0,0.15)_50%,transparent_75%)]"
+            : "bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.45)_0%,rgba(0,0,0,0.15)_55%,transparent_80%)]"
+        )}
+      />
 
       <div
         className={cn(
