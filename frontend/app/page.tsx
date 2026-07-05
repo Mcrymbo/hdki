@@ -1,5 +1,5 @@
 import Image from "next/image";
-import heroImg from "@/assets/images/im2.png";
+import heroImg from "@/assets/images/im12.jpeg";
 import missionImg from "@/assets/images/im13.jpeg";
 import Layout from "@/components/Layout";
 import TrainingSessions from "@/components/TrainingHolder";
