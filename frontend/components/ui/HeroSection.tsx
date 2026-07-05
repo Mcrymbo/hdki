@@ -11,9 +11,16 @@ interface HeroSectionProps {
   eyebrow?: string;
   height?: "sm" | "md" | "lg" | "full";
   align?: "center" | "left";
+  imagePosition?: "center" | "top" | "bottom";
   children?: React.ReactNode;
   className?: string;
 }
+
+const imagePositionClasses: Record<NonNullable<HeroSectionProps["imagePosition"]>, string> = {
+  center: "object-center",
+  top: "object-top",
+  bottom: "object-bottom",
+};
 
 const heightClasses: Record<NonNullable<HeroSectionProps["height"]>, string> = {
   sm: "h-64 md:h-80",
@@ -29,6 +36,7 @@ export default function HeroSection({
   eyebrow,
   height = "md",
   align = "center",
+  imagePosition = "center",
   children,
   className,
 }: HeroSectionProps) {
@@ -41,10 +49,10 @@ export default function HeroSection({
         priority
         unoptimized={typeof image === "string"}
         sizes="100vw"
-        className="object-cover"
+        className={cn("object-cover", imagePositionClasses[imagePosition])}
       />
-      <div className="absolute inset-0 bg-black/45" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/40" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/40 to-black/20" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.45)_0%,rgba(0,0,0,0.15)_55%,transparent_80%)]" />
 
       <div
         className={cn(
@@ -59,7 +67,7 @@ export default function HeroSection({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               className={cn(
-                "mb-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-hdki-red drop-shadow-[0_1px_6px_rgba(0,0,0,0.8)]",
+                "mb-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-hdki-red [filter:drop-shadow(0_1px_3px_rgba(0,0,0,0.9))_drop-shadow(0_2px_10px_rgba(0,0,0,0.6))]",
                 align === "center" && "justify-center"
               )}
             >
@@ -71,7 +79,7 @@ export default function HeroSection({
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-display text-4xl font-medium tracking-tight text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.7)] sm:text-5xl md:text-6xl"
+            className="font-display text-4xl font-medium tracking-tight text-white [filter:drop-shadow(0_1px_4px_rgba(0,0,0,0.95))_drop-shadow(0_4px_24px_rgba(0,0,0,0.65))] sm:text-5xl md:text-6xl"
           >
             {title}
           </motion.h1>
@@ -80,7 +88,7 @@ export default function HeroSection({
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="mt-5 text-lg font-light text-gray-100 drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] md:text-xl"
+              className="mt-5 text-lg font-light text-white [filter:drop-shadow(0_1px_3px_rgba(0,0,0,0.95))_drop-shadow(0_3px_16px_rgba(0,0,0,0.7))] md:text-xl"
             >
               {subtitle}
             </motion.p>
@@ -91,7 +99,7 @@ export default function HeroSection({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
               className={cn(
-                "mt-8 flex flex-col items-center gap-4 sm:flex-row",
+                "mt-10 flex flex-col items-center gap-4 sm:mt-14 sm:flex-row",
                 align === "center" ? "justify-center" : "items-start"
               )}
             >
