@@ -27,12 +27,20 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     "localhost",
-    "127.0.0.1",   
+    "127.0.0.1",
+    "api.hdkikenya.co.ke",
+    "hdkikenya.co.ke",
+    "www.hdkikenya.co.ke",   
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:8000",
+    "http://api.hdkikenya.co.ke",
+    "https://api.hdkikenya.co.ke",
+    "https://hdkikenya.co.ke",
+    "http://hdkikenya.co.ke",
+    "https://www.hdkikenya.co.ke",
 ]
 
 # Application definition
