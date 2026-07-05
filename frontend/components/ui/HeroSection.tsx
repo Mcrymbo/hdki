@@ -12,6 +12,7 @@ interface HeroSectionProps {
   height?: "sm" | "md" | "lg" | "full";
   align?: "center" | "left";
   imagePosition?: "center" | "top" | "bottom";
+  hideSubtitleOnMobile?: boolean;
   children?: React.ReactNode;
   className?: string;
 }
@@ -37,6 +38,7 @@ export default function HeroSection({
   height = "md",
   align = "center",
   imagePosition = "center",
+  hideSubtitleOnMobile = false,
   children,
   className,
 }: HeroSectionProps) {
@@ -60,7 +62,7 @@ export default function HeroSection({
           align === "center" ? "text-center" : "text-left"
         )}
       >
-        <div className={cn(align === "center" && "mx-auto max-w-3xl")}>
+        <div className={cn("mt-12 sm:mt-0", align === "center" && "mx-auto max-w-3xl")}>
           {eyebrow && (
             <motion.span
               initial={{ opacity: 0, y: 8 }}
@@ -79,7 +81,7 @@ export default function HeroSection({
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-display text-4xl font-medium tracking-tight text-white [filter:drop-shadow(0_1px_4px_rgba(0,0,0,0.95))_drop-shadow(0_4px_24px_rgba(0,0,0,0.65))] sm:text-5xl md:text-6xl"
+            className="font-display text-3xl font-medium tracking-tight text-white [filter:drop-shadow(0_1px_4px_rgba(0,0,0,0.95))_drop-shadow(0_4px_24px_rgba(0,0,0,0.65))] sm:text-5xl md:text-6xl"
           >
             {title}
           </motion.h1>
@@ -88,7 +90,10 @@ export default function HeroSection({
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="mt-5 text-lg font-light text-white [filter:drop-shadow(0_1px_3px_rgba(0,0,0,0.95))_drop-shadow(0_3px_16px_rgba(0,0,0,0.7))] md:text-xl"
+              className={cn(
+                "mt-5 text-base font-light text-white [filter:drop-shadow(0_1px_3px_rgba(0,0,0,0.95))_drop-shadow(0_3px_16px_rgba(0,0,0,0.7))] sm:text-lg md:text-xl",
+                hideSubtitleOnMobile && "hidden sm:block"
+              )}
             >
               {subtitle}
             </motion.p>

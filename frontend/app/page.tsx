@@ -61,12 +61,15 @@ export default function Index() {
         subtitle="Shotokan karate training meets Kenya's world-class adventure tourism."
         height="full"
         imagePosition="top"
+        hideSubtitleOnMobile
       >
-        <Button href="/adventures" variant="primary" size="lg" icon={<ArrowRight />}>
-          Explore Karate Adventures
+        <Button href="/adventures" variant="primary" size="lg" icon={<ArrowRight />} className="w-full sm:w-auto">
+          <span className="sm:hidden">Explore More</span>
+          <span className="hidden sm:inline">Explore Karate Adventures</span>
         </Button>
-        <Button href="/content/about" variant="outline-white" size="lg">
-          Learn About HDKI Kenya
+        <Button href="/content/about" variant="outline-white" size="lg" className="w-full sm:w-auto">
+          <span className="sm:hidden">Learn More</span>
+          <span className="hidden sm:inline">Learn About HDKI Kenya</span>
         </Button>
       </HeroSection>
 
