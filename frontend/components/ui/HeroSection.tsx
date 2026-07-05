@@ -19,7 +19,7 @@ const heightClasses: Record<NonNullable<HeroSectionProps["height"]>, string> = {
   sm: "h-64 md:h-80",
   md: "h-96",
   lg: "h-[32rem]",
-  full: "h-screen",
+  full: "min-h-screen min-h-[100svh] py-28",
 };
 
 export default function HeroSection({
@@ -43,7 +43,8 @@ export default function HeroSection({
         sizes="100vw"
         className="object-cover"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/20" />
+      <div className="absolute inset-0 bg-black/45" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/40" />
 
       <div
         className={cn(
@@ -58,7 +59,7 @@ export default function HeroSection({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               className={cn(
-                "mb-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-hdki-red",
+                "mb-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-hdki-red drop-shadow-[0_1px_6px_rgba(0,0,0,0.8)]",
                 align === "center" && "justify-center"
               )}
             >
@@ -70,7 +71,7 @@ export default function HeroSection({
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-display text-4xl font-medium tracking-tight text-white sm:text-5xl md:text-6xl"
+            className="font-display text-4xl font-medium tracking-tight text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.7)] sm:text-5xl md:text-6xl"
           >
             {title}
           </motion.h1>
@@ -79,7 +80,7 @@ export default function HeroSection({
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="mt-5 text-lg font-light text-gray-200 md:text-xl"
+              className="mt-5 text-lg font-light text-gray-100 drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] md:text-xl"
             >
               {subtitle}
             </motion.p>
@@ -89,7 +90,10 @@ export default function HeroSection({
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className={cn("mt-8 flex flex-col gap-4 sm:flex-row", align === "center" && "justify-center")}
+              className={cn(
+                "mt-8 flex flex-col items-center gap-4 sm:flex-row",
+                align === "center" ? "justify-center" : "items-start"
+              )}
             >
               {children}
             </motion.div>
