@@ -2,100 +2,83 @@
 
 import { useQuery } from '@apollo/client';
 import { GET_GALLERY_ITEMS } from '@/lib/graphql/queries';
+import heroImg from "@/assets/images/im12.jpeg";
 import Layout from '@/components/Layout';
-import { useEffect, useState } from 'react';
+import HeroSection from "@/components/ui/HeroSection";
+import Reveal from "@/components/ui/Reveal";
+import LoadingState from "@/components/ui/LoadingState";
+import ErrorState from "@/components/ui/ErrorState";
+import EmptyState from "@/components/ui/EmptyState";
+import Lightbox from "@/components/Lightbox";
+import Image from "next/image";
+import { useState } from 'react';
+import { ImageIcon } from "lucide-react";
+
+interface GalleryItem {
+  id: string;
+  title: string;
+  image: string;
+  description?: string;
+  uploadedAt?: string;
+}
 
 export default function GalleryPage() {
-  const { data, loading, error } = useQuery(GET_GALLERY_ITEMS);
-  const [lightbox, setLightbox] = useState<{ src: string; title: string } | null>(null);
+  const { data, loading, error, refetch } = useQuery(GET_GALLERY_ITEMS);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setLightbox(null);
-    }
-    if (lightbox) {
-      document.addEventListener('keydown', onKey);
-    }
-    return () => document.removeEventListener('keydown', onKey);
-  }, [lightbox]);
-
-  if (loading) {
-    return (
-      <Layout>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-hdki-red mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading gallery...</p>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (error) {
-    return (
-      <Layout>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-red-600 mb-4">Error loading gallery: {error.message}</p>
-            <button onClick={() => window.location.reload()} className="bg-hdki-red hover:bg-hdki-red-dark text-white px-6 py-3 font-semibold transition-colors duration-300">Try Again</button>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-
-  const items = data?.galleryItems || [];
+  const items: GalleryItem[] = data?.galleryItems || [];
+  const lightboxImages = items.map((it) => ({ src: it.image, alt: it.title, title: it.title }));
 
   return (
     <Layout>
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-light text-gray-900 mb-6">Gallery</h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">Explore moments from HDKI Kenya activities.</p>
-          </div>
-        </div>
-      </section>
+      <HeroSection
+        image={heroImg}
+        eyebrow="Moments"
+        title="Gallery"
+        subtitle="Explore moments from HDKI Kenya activities, training sessions, and adventures."
+      />
 
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {items.length === 0 ? (
-            <div className="text-center py-12">
-              <h3 className="text-2xl font-light text-gray-900 mb-4">No Images Yet</h3>
-              <p className="text-gray-600">Check back later.</p>
-            </div>
+      <section className="bg-hdki-gray-light py-14 md:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {loading ? (
+            <LoadingState label="Loading gallery..." />
+          ) : error ? (
+            <ErrorState message={`Error loading gallery: ${error.message}`} onRetry={() => refetch()} />
+          ) : items.length === 0 ? (
+            <EmptyState icon={<ImageIcon />} title="No images yet" description="Check back soon for photos from our events and training sessions." />
           ) : (
-            <>
-              <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 [column-fill:_balance]">
-                {items.map((it: any) => (
-                  <figure key={it.id} className="mb-6 break-inside-avoid bg-white rounded-lg shadow overflow-hidden group cursor-zoom-in" onClick={() => setLightbox({ src: it.image, title: it.title })}>
-                    <img src={it.image} alt={it.title} className="w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" loading="lazy" />
-                    <figcaption className="p-4">
-                      <p className="text-sm font-medium text-gray-900">{it.title}</p>
-                      {it.description && <p className="text-xs text-gray-600 mt-1">{it.description}</p>}
-                    </figcaption>
-                  </figure>
-                ))}
-              </div>
-
-              {lightbox && (
-                <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={() => setLightbox(null)}>
-                  <div className="relative max-w-4xl w-full" onClick={(e) => e.stopPropagation()}>
-                    <button aria-label="Close" onClick={() => setLightbox(null)} className="absolute -top-3 -right-3 bg-white text-gray-700 rounded-full shadow p-2 hover:text-hdki-red transition">
-                      ✕
-                    </button>
-                    <img src={lightbox.src} alt={lightbox.title} className="w-full h-auto rounded shadow-lg" />
-                    <p className="mt-3 text-sm text-gray-200 text-center">{lightbox.title}</p>
-                  </div>
-                </div>
-              )}
-            </>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {items.map((item, i) => (
+                <Reveal key={item.id} delay={(i % 6) * 0.06} direction="fade">
+                  <button
+                    type="button"
+                    onClick={() => setLightboxIndex(i)}
+                    className="group relative block aspect-[4/3] w-full overflow-hidden rounded-sm bg-hdki-gray-light"
+                  >
+                    <Image
+                      src={item.image}
+                      alt={item.title}
+                      fill
+                      unoptimized
+                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/0 to-black/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                    <div className="absolute inset-x-0 bottom-0 translate-y-2 p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                      <p className="text-sm font-semibold text-white">{item.title}</p>
+                      {item.description && <p className="line-clamp-1 text-xs text-gray-300">{item.description}</p>}
+                    </div>
+                  </button>
+                </Reveal>
+              ))}
+            </div>
           )}
         </div>
       </section>
+
+      {lightboxIndex !== null && (
+        <Lightbox images={lightboxImages} currentIndex={lightboxIndex} onClose={() => setLightboxIndex(null)} />
+      )}
     </Layout>
   );
 }
-
-

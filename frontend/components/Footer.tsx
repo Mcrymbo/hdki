@@ -3,89 +3,91 @@ import { Mail, Phone, MapPin, Facebook, Instagram, Twitter } from "lucide-react"
 import Image from "next/image";
 import logo1 from "@/assets/logo/logo1.png";
 
+const quickLinks = [
+  { name: "About HDKI Kenya", href: "/content/about" },
+  { name: "Karate Adventures", href: "/adventures" },
+  { name: "Dojo Locations", href: "/dojos" },
+  { name: "Upcoming Events", href: "/activities/events" },
+];
+
+const socialLinks = [
+  { icon: Facebook, href: "#", label: "Facebook" },
+  { icon: Instagram, href: "#", label: "Instagram" },
+  { icon: Twitter, href: "#", label: "Twitter" },
+];
+
 export default function Footer() {
   return (
-    <footer className="bg-hdki-gray-dark text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <footer className="bg-hdki-ink text-white">
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           {/* About HDKI Kenya */}
           <div>
-            <div className="flex items-center mb-4">
-              <Image src={logo1} alt="HDKI Kenya" width={60} height={60} className="w-16 h-16 mr-3 -mb-3" />
-              <h3 className="text-lg font-semibold">HDKI Kenya</h3>
+            <div className="mb-4 flex items-center gap-3">
+              <Image src={logo1} alt="HDKI Kenya" className="h-10 w-auto" />
+              <h3 className="font-display text-lg font-medium">HDKI Kenya</h3>
             </div>
-            <p className="text-gray-300 text-sm leading-relaxed">
-              Experience the perfect blend of traditional martial arts training and Kenya's breathtaking adventure tourism. Join us for Karate Adventures that combine discipline, culture, and exploration.
+            <p className="text-sm leading-relaxed text-gray-400">
+              Experience the perfect blend of traditional martial arts training and Kenya&apos;s breathtaking
+              adventure tourism. Join us for Karate Adventures that combine discipline, culture, and exploration.
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/content/about" className="text-gray-300 hover:text-hdki-red transition-colors duration-200 text-sm">
-                  About HDKI Kenya
-                </Link>
-              </li>
-              <li>
-                <Link href="/content/karate-adventures" className="text-gray-300 hover:text-hdki-red transition-colors duration-200 text-sm">
-                  Karate Adventures
-                </Link>
-              </li>
-              <li>
-                <Link href="/content/dojo-locations" className="text-gray-300 hover:text-hdki-red transition-colors duration-200 text-sm">
-                  Dojo Locations
-                </Link>
-              </li>
-              <li>
-                <Link href="/activities/events" className="text-gray-300 hover:text-hdki-red transition-colors duration-200 text-sm">
-                  Upcoming Events
-                </Link>
-              </li>
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">Quick Links</h3>
+            <ul className="space-y-2.5">
+              {quickLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-sm text-gray-400 transition-colors hover:text-hdki-red">
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Contact Info</h3>
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">Contact Info</h3>
             <div className="space-y-3">
-              <div className="flex items-center">
-                <Mail className="h-4 w-4 text-hdki-red mr-3" />
-                <span className="text-gray-300 text-sm">info@hdkikenya.org</span>
+              <div className="flex items-center gap-3">
+                <Mail className="h-4 w-4 shrink-0 text-hdki-red" />
+                <span className="text-sm text-gray-400">info@hdkikenya.org</span>
               </div>
-              <div className="flex items-center">
-                <Phone className="h-4 w-4 text-hdki-red mr-3" />
-                <span className="text-gray-300 text-sm">+254 700 123 456</span>
+              <div className="flex items-center gap-3">
+                <Phone className="h-4 w-4 shrink-0 text-hdki-red" />
+                <span className="text-sm text-gray-400">+254 700 123 456</span>
               </div>
-              <div className="flex items-center">
-                <MapPin className="h-4 w-4 text-hdki-red mr-3" />
-                <span className="text-gray-300 text-sm">Nairobi, Kenya</span>
+              <div className="flex items-center gap-3">
+                <MapPin className="h-4 w-4 shrink-0 text-hdki-red" />
+                <span className="text-sm text-gray-400">Nairobi, Kenya</span>
               </div>
             </div>
           </div>
 
           {/* Social & HDKI Affiliation */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Connect With Us</h3>
-            <div className="flex space-x-4 mb-6">
-              <a href="#" className="text-gray-300 hover:text-hdki-red transition-colors duration-200">
-                <Facebook className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-300 hover:text-hdki-red transition-colors duration-200">
-                <Instagram className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-300 hover:text-hdki-red transition-colors duration-200">
-                <Twitter className="h-5 w-5" />
-              </a>
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">Connect With Us</h3>
+            <div className="mb-6 flex gap-3">
+              {socialLinks.map(({ icon: Icon, href, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  aria-label={label}
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-gray-400 transition-colors hover:border-hdki-red hover:text-hdki-red"
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
             </div>
-            <div className="text-sm text-gray-300">
-              <p className="mb-2">Official Affiliate of</p>
-              <a 
-                href="https://hdki.org/" 
-                target="_blank" 
+            <div className="text-sm text-gray-400">
+              <p className="mb-1.5">Official Affiliate of</p>
+              <a
+                href="https://hdki.org/"
+                target="_blank"
                 rel="noopener noreferrer"
-                className="text-hdki-red hover:text-red-400 transition-colors duration-200 font-semibold"
+                className="font-semibold text-hdki-red transition-colors hover:text-red-400"
               >
                 HDKI International
               </a>
@@ -93,11 +95,14 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-700 mt-8 pt-8 text-center">
-          <p className="text-gray-300 text-sm">
-            © 2024 HDKI Kenya. All rights reserved. | 
+        <div className="mt-12 border-t border-white/10 pt-8 text-center text-sm text-gray-500">
+          <p>
+            © {new Date().getFullYear()} HDKI Kenya. All rights reserved.
             <span className="mx-2">•</span>
-            Proudly affiliated with <a href="https://hdki.org/" target="_blank" rel="noopener noreferrer" className="text-hdki-red hover:text-red-400">HDKI.org</a>
+            Proudly affiliated with{" "}
+            <a href="https://hdki.org/" target="_blank" rel="noopener noreferrer" className="text-hdki-red hover:text-red-400">
+              HDKI.org
+            </a>
           </p>
         </div>
       </div>

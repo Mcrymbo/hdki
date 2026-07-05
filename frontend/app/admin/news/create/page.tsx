@@ -5,27 +5,33 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "@apollo/client";
 import { CREATE_NEWS } from "@/lib/graphql/mutations";
 import AdminLayout from "@/components/admin/AdminLayout";
+import AccessDenied from "@/components/admin/ui/AccessDenied";
+import { useToast } from "@/components/admin/ui/Toast";
+import { Input, Textarea } from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
+import { Save } from "lucide-react";
 
 export default function CreateNewsPage() {
   const router = useRouter();
   const { isAdmin } = useAuth();
+  const { toast } = useToast();
   const [form, setForm] = useState({ title: "", content: "", coverImage: "" });
   const [file, setFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<{ [k: string]: string }>({});
   const [createNews, { loading }] = useMutation(CREATE_NEWS, {
-    onCompleted: () => { alert("Article created"); router.push("/admin/news"); },
-    onError: (e) => alert(e.message),
+    onCompleted: () => {
+      toast("Article created successfully", "success");
+      router.push("/admin/news");
+    },
+    onError: (e) => toast(e.message, "error"),
   });
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Access Denied</h1>
-          <p className="text-gray-600">You need admin privileges to access this page.</p>
-        </div>
-      </div>
+      <AdminLayout>
+        <AccessDenied />
+      </AdminLayout>
     );
   }
 
@@ -44,38 +50,55 @@ export default function CreateNewsPage() {
   };
 
   return (
-    <AdminLayout>
-      <div className="max-w-3xl mx-auto bg-white shadow p-6">
-        <h1 className="text-2xl font-light text-gray-900 mb-6">Create Article</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <AdminLayout
+      breadcrumbs={[
+        { label: "Dashboard", href: "/admin" },
+        { label: "News", href: "/admin/news" },
+        { label: "Create" },
+      ]}
+    >
+      <div className="mx-auto max-w-3xl">
+        <h1 className="mb-6 font-display text-2xl font-medium text-hdki-ink">Create Article</h1>
+        <form onSubmit={handleSubmit} className="space-y-5 rounded-sm border border-hdki-border bg-white p-6">
+          <Input
+            label="Title"
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+            placeholder="Article title"
+            error={errors.title}
+          />
           <div>
-            <label className="block text-sm text-gray-700 mb-1">Title</label>
-            <input className="w-full border px-3 py-2" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-            {errors.title && <p className="text-sm text-red-600">{errors.title}</p>}
+            <Input
+              label="Cover Image URL"
+              value={form.coverImage}
+              onChange={(e) => setForm({ ...form, coverImage: e.target.value })}
+              placeholder="https://...jpg"
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              className="mt-2 block w-full text-sm text-hdki-gray-mid file:mr-3 file:rounded-sm file:border-0 file:bg-hdki-gray-light file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-hdki-ink hover:file:bg-hdki-border"
+            />
           </div>
-          <div>
-            <label className="block text-sm text-gray-700 mb-1">Cover Image URL</label>
-            <input className="w-full border px-3 py-2" value={form.coverImage} onChange={(e) => setForm({ ...form, coverImage: e.target.value })} />
-            <div className="mt-2">
-              <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm text-gray-700 mb-1">Content</label>
-            <textarea className="w-full border px-3 py-2" rows={8} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} />
-            {errors.content && <p className="text-sm text-red-600">{errors.content}</p>}
-          </div>
-          <div className="flex gap-3">
-            <button type="submit" disabled={loading} className="bg-hdki-red hover:bg-hdki-red-dark text-white px-6 py-2 font-semibold disabled:opacity-60">{loading ? "Creating..." : "Create"}</button>
-            <button type="button" onClick={() => router.push("/admin/news")} className="border px-6 py-2">Cancel</button>
+          <Textarea
+            label="Content"
+            rows={8}
+            value={form.content}
+            onChange={(e) => setForm({ ...form, content: e.target.value })}
+            placeholder="Article content..."
+            error={errors.content}
+          />
+          <div className="flex gap-3 pt-2">
+            <Button type="submit" variant="primary" size="md" loading={loading} icon={<Save />}>
+              Create
+            </Button>
+            <Button type="button" variant="outline" size="md" onClick={() => router.push("/admin/news")}>
+              Cancel
+            </Button>
           </div>
         </form>
       </div>
     </AdminLayout>
   );
 }
-
-
-
-
-

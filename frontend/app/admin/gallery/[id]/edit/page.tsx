@@ -6,22 +6,36 @@ import { useQuery, useMutation } from "@apollo/client";
 import { GET_GALLERY_ITEMS } from "@/lib/graphql/queries";
 import { UPDATE_GALLERY_ITEM } from "@/lib/graphql/mutations";
 import AdminLayout from "@/components/admin/AdminLayout";
+import AccessDenied from "@/components/admin/ui/AccessDenied";
+import { useToast } from "@/components/admin/ui/Toast";
+import LoadingState from "@/components/ui/LoadingState";
+import { Input, Textarea } from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
+import { Save } from "lucide-react";
+
+interface GalleryItem {
+  id: string;
+  title: string;
+  image: string;
+  description?: string;
+}
 
 export default function EditGalleryItemPage() {
   const router = useRouter();
   const params = useParams();
   const { isAdmin } = useAuth();
+  const { toast } = useToast();
   const id = String(params?.id || "");
 
   // There is no single-item query; fetch list and select
   const { data, loading: loadingQuery } = useQuery(GET_GALLERY_ITEMS);
   const [updateItem, { loading }] = useMutation(UPDATE_GALLERY_ITEM, {
     onCompleted: () => {
-      alert("Gallery item updated successfully");
+      toast("Gallery item updated successfully", "success");
       router.push("/admin/gallery");
     },
-    onError: (e) => alert(e.message),
+    onError: (e) => toast(e.message, "error"),
   });
 
   const [form, setForm] = useState({ title: "", image: "", description: "" });
@@ -29,7 +43,7 @@ export default function EditGalleryItemPage() {
   const [errors, setErrors] = useState<{ [k: string]: string }>({});
 
   useEffect(() => {
-    const item = data?.galleryItems?.find((x: any) => x.id === id);
+    const item = data?.galleryItems?.find((x: GalleryItem) => x.id === id);
     if (item) {
       setForm({ title: item.title || "", image: item.image || "", description: item.description || "" });
     }
@@ -37,12 +51,9 @@ export default function EditGalleryItemPage() {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Access Denied</h1>
-          <p className="text-gray-600">You need admin privileges to access this page.</p>
-        </div>
-      </div>
+      <AdminLayout>
+        <AccessDenied />
+      </AdminLayout>
     );
   }
 
@@ -61,58 +72,52 @@ export default function EditGalleryItemPage() {
   };
 
   return (
-    <AdminLayout>
-      <div className="max-w-2xl mx-auto bg-white shadow p-6">
-        <h1 className="text-2xl font-light text-gray-900 mb-6">Edit Gallery Item</h1>
+    <AdminLayout
+      breadcrumbs={[
+        { label: "Dashboard", href: "/admin" },
+        { label: "Gallery", href: "/admin/gallery" },
+        { label: "Edit" },
+      ]}
+    >
+      <div className="mx-auto max-w-2xl">
+        <h1 className="mb-6 font-display text-2xl font-medium text-hdki-ink">Edit Gallery Item</h1>
         {loadingQuery ? (
-          <div className="py-12 text-center">Loading...</div>
+          <LoadingState label="Loading gallery item..." />
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5 rounded-sm border border-hdki-border bg-white p-6">
+            <Input
+              label="Title"
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              error={errors.title}
+            />
             <div>
-              <label className="block text-sm text-gray-700 mb-1">Title</label>
-              <input
-                className="w-full border px-3 py-2"
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-              />
-              {errors.title && <p className="text-sm text-red-600">{errors.title}</p>}
-            </div>
-            <div>
-              <label className="block text-sm text-gray-700 mb-1">Image URL</label>
-              <input
-                className="w-full border px-3 py-2"
+              <Input
+                label="Image URL"
                 value={form.image}
                 onChange={(e) => setForm({ ...form, image: e.target.value })}
+                error={errors.image}
               />
-              {errors.image && <p className="text-sm text-red-600">{errors.image}</p>}
-              <div className="mt-2">
-                <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm text-gray-700 mb-1">Description</label>
-              <textarea
-                className="w-full border px-3 py-2"
-                rows={4}
-                value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                className="mt-2 block w-full text-sm text-hdki-gray-mid file:mr-3 file:rounded-sm file:border-0 file:bg-hdki-gray-light file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-hdki-ink hover:file:bg-hdki-border"
               />
             </div>
-            <div className="flex gap-3">
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-hdki-red hover:bg-hdki-red-dark text-white px-6 py-2 font-semibold disabled:opacity-60"
-              >
-                {loading ? "Saving..." : "Save Changes"}
-              </button>
-              <button
-                type="button"
-                onClick={() => router.push("/admin/gallery")}
-                className="border px-6 py-2"
-              >
+            <Textarea
+              label="Description"
+              rows={4}
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+            />
+            <div className="flex gap-3 pt-2">
+              <Button type="submit" variant="primary" size="md" loading={loading} icon={<Save />}>
+                Save Changes
+              </Button>
+              <Button type="button" variant="outline" size="md" onClick={() => router.push("/admin/gallery")}>
                 Cancel
-              </button>
+              </Button>
             </div>
           </form>
         )}
@@ -120,5 +125,3 @@ export default function EditGalleryItemPage() {
     </AdminLayout>
   );
 }
-
-

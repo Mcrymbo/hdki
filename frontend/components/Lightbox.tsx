@@ -55,8 +55,8 @@ export default function Lightbox({ images, currentIndex, onClose }: LightboxProp
   };
 
   return (
-    <div 
-      className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
       {/* Close Button */}
@@ -116,8 +116,8 @@ export default function Lightbox({ images, currentIndex, onClose }: LightboxProp
               <button
                 key={index}
                 onClick={() => setActiveIndex(index)}
-                className={`w-12 h-12 rounded overflow-hidden transition-opacity duration-200 ${
-                  index === activeIndex ? "opacity-100 ring-2 ring-white" : "opacity-60 hover:opacity-80"
+                className={`h-12 w-12 overflow-hidden rounded-sm transition-opacity duration-200 ${
+                  index === activeIndex ? "opacity-100 ring-2 ring-hdki-red" : "opacity-60 hover:opacity-80"
                 }`}
               >
                 <img

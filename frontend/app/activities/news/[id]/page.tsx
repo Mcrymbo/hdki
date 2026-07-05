@@ -1,29 +1,32 @@
 "use client";
 
-import { useQuery } from '@apollo/client';
-import { GET_NEWS_ARTICLE } from '@/lib/graphql/queries';
+import { useQuery } from "@apollo/client";
+import { GET_NEWS_ARTICLE } from "@/lib/graphql/queries";
 import Link from "next/link";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import Layout from "@/components/Layout";
-import { Calendar, User, ArrowLeft, Share2 } from "lucide-react";
+import Button from "@/components/ui/Button";
+import Reveal from "@/components/ui/Reveal";
+import LoadingState from "@/components/ui/LoadingState";
+import ErrorState from "@/components/ui/ErrorState";
+import { useToast } from "@/components/admin/ui/Toast";
+import { Calendar, User, ArrowLeft, ArrowRight, Share2 } from "lucide-react";
+
+function authorName(author?: { username?: string; firstName?: string; lastName?: string }) {
+  if (!author) return "HDKI Kenya";
+  return author.firstName && author.lastName ? `${author.firstName} ${author.lastName}` : author.username || "HDKI Kenya";
+}
 
 export default function NewsDetail() {
   const { id } = useParams<{ id: string }>();
-  
-  const { data, loading, error } = useQuery(GET_NEWS_ARTICLE, {
-    variables: { id },
-    skip: !id,
-  });
+  const { toast } = useToast();
+  const { data, loading, error, refetch } = useQuery(GET_NEWS_ARTICLE, { variables: { id }, skip: !id });
 
   if (loading) {
     return (
       <Layout>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin w-12 h-12 border-4 border-hdki-red border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading article...</p>
-          </div>
-        </div>
+        <LoadingState label="Loading article..." />
       </Layout>
     );
   }
@@ -31,20 +34,10 @@ export default function NewsDetail() {
   if (error || !data?.newsArticle) {
     return (
       <Layout>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Article Not Found</h1>
-            <p className="text-gray-600 mb-8">
-              {error ? error.message : "The article you're looking for doesn't exist."}
-            </p>
-            <Link
-              href="/activities/news"
-              className="bg-hdki-red hover:bg-hdki-red-dark text-white px-6 py-3 font-semibold transition-colors duration-300"
-            >
-              Back to News
-            </Link>
-          </div>
-        </div>
+        <ErrorState
+          message={error ? error.message : "The article you're looking for doesn't exist."}
+          onRetry={error ? () => refetch() : undefined}
+        />
       </Layout>
     );
   }
@@ -60,23 +53,28 @@ export default function NewsDetail() {
           url: window.location.href,
         });
       } catch (err) {
-        console.log('Error sharing:', err);
+        console.log("Error sharing:", err);
       }
     } else {
-      // Fallback: copy to clipboard
       navigator.clipboard.writeText(window.location.href);
-      alert('Link copied to clipboard!');
+      toast("Link copied to clipboard!", "success");
     }
   };
 
+  const publishedLabel = new Date(article.publishedAt).toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   return (
     <Layout>
-      {/* Back Navigation */}
-      <section className="py-6 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="bg-hdki-gray-light py-6">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <Link
             href="/activities/news"
-            className="text-hdki-red hover:text-hdki-red-dark inline-flex items-center text-sm font-medium"
+            className="inline-flex items-center text-sm font-medium text-hdki-red hover:text-hdki-red-dark"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to News
@@ -84,95 +82,68 @@ export default function NewsDetail() {
         </div>
       </section>
 
-      {/* Article Header */}
-      <section className="py-12 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-light text-gray-900 mb-6 leading-tight">
-              {article?.title}
-            </h1>
-            
-            <div className="flex items-center justify-center text-gray-600 mb-6">
-              <div className="flex items-center mr-6">
-                <Calendar className="h-5 w-5 mr-2" />
-                <time dateTime={article?.publishedAt}>
-                  {new Date(article?.publishedAt).toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </time>
-              </div>
-              
-              <div className="flex items-center">
-                <User className="h-5 w-5 mr-2" />
-                <span>
-                  {article?.author?.firstName && article?.author?.lastName
-                    ? `${article?.author.firstName} ${article?.author.lastName}`
-                    : article?.author?.username || 'HDKI Kenya'
-                  }
-                </span>
-              </div>
-            </div>
-
-            <button
-              onClick={handleShare}
-              className="inline-flex items-center text-hdki-red hover:text-hdki-red-dark font-medium transition-colors duration-200"
-            >
-              <Share2 className="h-4 w-4 mr-2" />
-              Share Article
-            </button>
+      {article.coverImage ? (
+        <section className="relative flex h-80 items-end overflow-hidden bg-hdki-ink md:h-96">
+          <Image src={article.coverImage} alt={article.title} fill priority unoptimized sizes="100vw" className="object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
+          <div className="relative z-10 mx-auto w-full max-w-4xl px-4 pb-8 sm:px-6 lg:px-8">
+            <span className="mb-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-hdki-red">
+              <span className="h-px w-6 bg-hdki-red" />
+              {publishedLabel}
+            </span>
+            <h1 className="font-display text-3xl font-medium text-white sm:text-4xl md:text-5xl">{article.title}</h1>
           </div>
+        </section>
+      ) : (
+        <section className="bg-white pt-14 md:pt-20">
+          <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+            <span className="mb-3 inline-flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-hdki-red">
+              <span className="h-px w-6 bg-hdki-red" />
+              {publishedLabel}
+            </span>
+            <h1 className="font-display text-4xl font-medium text-hdki-ink sm:text-5xl">{article.title}</h1>
+          </div>
+        </section>
+      )}
 
-          {article?.coverImage && (
-            <div className="mb-8">
-              <img
-                src={article?.coverImage}
-                alt={article?.title}
-                className="w-full h-64 md:h-96 object-cover rounded-lg shadow-lg"
-              />
-            </div>
-          )}
+      <section className="border-b border-hdki-border bg-white py-6">
+        <div className="mx-auto flex max-w-4xl flex-col items-center justify-center gap-4 px-4 text-center sm:flex-row sm:justify-between sm:px-6 lg:px-8">
+          <span className="inline-flex items-center gap-2 text-sm text-hdki-gray-mid">
+            <User className="h-4 w-4 text-hdki-red" />
+            {authorName(article.author)}
+          </span>
+          <span className="inline-flex items-center gap-2 text-sm text-hdki-gray-mid sm:hidden">
+            <Calendar className="h-4 w-4 text-hdki-red" />
+            {publishedLabel}
+          </span>
+          <button
+            onClick={handleShare}
+            className="inline-flex items-center gap-2 text-sm font-medium text-hdki-red hover:text-hdki-red-dark"
+          >
+            <Share2 className="h-4 w-4" />
+            Share Article
+          </button>
         </div>
       </section>
 
-      {/* Article Content */}
-      <section className="py-12 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg shadow-lg p-8 md:p-12">
-            <div className="prose prose-lg max-w-none">
-              <div 
-                className="text-gray-700 leading-relaxed"
-                dangerouslySetInnerHTML={{ 
-                  __html: article?.content?.replace(/\n/g, '<br />') || '' 
-                }}
-              />
-            </div>
-          </div>
+      <section className="bg-white py-14 md:py-20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div
+              className="text-lg leading-loose text-hdki-ink [&_br]:content-['']"
+              dangerouslySetInnerHTML={{ __html: article.content?.replace(/\n/g, "<br /><br />") || "" }}
+            />
+          </Reveal>
         </div>
       </section>
 
-      {/* Related Articles */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-light text-gray-900 mb-4">
-              More News Articles
-            </h2>
-            <p className="text-lg text-gray-600">
-              Explore more stories from HDKI Kenya
-            </p>
-          </div>
-
-          <div className="text-center">
-            <Link
-              href="/activities/news"
-              className="bg-hdki-red hover:bg-hdki-red-dark text-white px-8 py-3 font-semibold transition-colors duration-300"
-            >
-              View All News
-            </Link>
-          </div>
+      <section className="bg-hdki-gray-light py-14 text-center md:py-20">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <h2 className="mb-4 font-display text-3xl font-medium text-hdki-ink">More News Articles</h2>
+          <p className="mb-8 text-lg text-hdki-gray-mid">Explore more stories from HDKI Kenya</p>
+          <Button href="/activities/news" variant="primary" size="md" icon={<ArrowRight />}>
+            View All News
+          </Button>
         </div>
       </section>
     </Layout>

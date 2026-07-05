@@ -112,11 +112,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         return { success: false, message: data?.loginUser?.message || 'Login failed' };
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Login error:', error);
-      return { 
-        success: false, 
-        message: error.message || 'Login failed' 
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Login failed'
       };
     }
   };

@@ -5,11 +5,17 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "@apollo/client";
 import { CREATE_DOJO_LOCATION } from "@/lib/graphql/mutations";
 import AdminLayout from "@/components/admin/AdminLayout";
+import AccessDenied from "@/components/admin/ui/AccessDenied";
+import { useToast } from "@/components/admin/ui/Toast";
+import { Input, Textarea } from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
+import { Save } from "lucide-react";
 
 export default function CreateDojoPage() {
   const router = useRouter();
   const { isAdmin } = useAuth();
+  const { toast } = useToast();
 
   const [form, setForm] = useState({
     name: "",
@@ -25,20 +31,17 @@ export default function CreateDojoPage() {
 
   const [createDojo, { loading }] = useMutation(CREATE_DOJO_LOCATION, {
     onCompleted: () => {
-      alert("Dojo created successfully");
+      toast("Dojo created successfully", "success");
       router.push("/admin/dojos");
     },
-    onError: (e) => alert(e.message),
+    onError: (e) => toast(e.message, "error"),
   });
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Access Denied</h1>
-          <p className="text-gray-600">You need admin privileges to access this page.</p>
-        </div>
-      </div>
+      <AdminLayout>
+        <AccessDenied />
+      </AdminLayout>
     );
   }
 
@@ -59,103 +62,83 @@ export default function CreateDojoPage() {
   };
 
   return (
-    <AdminLayout>
-      <div className="max-w-3xl mx-auto bg-white shadow p-6">
-        <h1 className="text-2xl font-light text-gray-900 mb-6">Create Dojo Location</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm text-gray-700 mb-1">Name</label>
-            <input
-              className="w-full border px-3 py-2"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="HDKI Nairobi"
+    <AdminLayout
+      breadcrumbs={[
+        { label: "Dashboard", href: "/admin" },
+        { label: "Dojo Locations", href: "/admin/dojos" },
+        { label: "Create" },
+      ]}
+    >
+      <div className="mx-auto max-w-3xl">
+        <h1 className="mb-6 font-display text-2xl font-medium text-hdki-ink">Create Dojo Location</h1>
+        <form onSubmit={handleSubmit} className="space-y-5 rounded-sm border border-hdki-border bg-white p-6">
+          <Input
+            label="Name"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            placeholder="HDKI Nairobi"
+            error={errors.name}
+          />
+          <Input
+            label="Address"
+            value={form.address}
+            onChange={(e) => setForm({ ...form, address: e.target.value })}
+            placeholder="123 Main St"
+            error={errors.address}
+          />
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <Input
+              label="City"
+              value={form.city}
+              onChange={(e) => setForm({ ...form, city: e.target.value })}
+              placeholder="Nairobi"
+              error={errors.city}
             />
-            {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
-          </div>
-          <div>
-            <label className="block text-sm text-gray-700 mb-1">Address</label>
-            <input
-              className="w-full border px-3 py-2"
-              value={form.address}
-              onChange={(e) => setForm({ ...form, address: e.target.value })}
-              placeholder="123 Main St"
-            />
-            {errors.address && <p className="text-sm text-red-600">{errors.address}</p>}
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-gray-700 mb-1">City</label>
-              <input
-                className="w-full border px-3 py-2"
-                value={form.city}
-                onChange={(e) => setForm({ ...form, city: e.target.value })}
-                placeholder="Nairobi"
-              />
-              {errors.city && <p className="text-sm text-red-600">{errors.city}</p>}
-            </div>
-            <div>
-              <label className="block text-sm text-gray-700 mb-1">Country</label>
-              <input
-                className="w-full border px-3 py-2"
-                value={form.country}
-                onChange={(e) => setForm({ ...form, country: e.target.value })}
-                placeholder="Kenya"
-              />
-              {errors.country && <p className="text-sm text-red-600">{errors.country}</p>}
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm text-gray-700 mb-1">Google Map Link</label>
-            <input
-              className="w-full border px-3 py-2"
-              value={form.mapLink}
-              onChange={(e) => setForm({ ...form, mapLink: e.target.value })}
-              placeholder="https://maps.google.com/..."
+            <Input
+              label="Country"
+              value={form.country}
+              onChange={(e) => setForm({ ...form, country: e.target.value })}
+              placeholder="Kenya"
+              error={errors.country}
             />
           </div>
+          <Input
+            label="Google Map Link"
+            value={form.mapLink}
+            onChange={(e) => setForm({ ...form, mapLink: e.target.value })}
+            placeholder="https://maps.google.com/..."
+          />
           <div>
-            <label className="block text-sm text-gray-700 mb-1">Cover Image URL</label>
-            <input
-              className="w-full border px-3 py-2"
+            <Input
+              label="Cover Image URL"
               value={form.coverImage}
               onChange={(e) => setForm({ ...form, coverImage: e.target.value })}
               placeholder="https://...jpg"
             />
-            <div className="mt-2">
-              <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm text-gray-700 mb-1">Description</label>
-            <textarea
-              className="w-full border px-3 py-2"
-              rows={4}
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              placeholder="About this dojo..."
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              className="mt-2 block w-full text-sm text-hdki-gray-mid file:mr-3 file:rounded-sm file:border-0 file:bg-hdki-gray-light file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-hdki-ink hover:file:bg-hdki-border"
             />
           </div>
-          <div className="flex gap-3">
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-hdki-red hover:bg-hdki-red-dark text-white px-6 py-2 font-semibold disabled:opacity-60"
-            >
-              {loading ? "Creating..." : "Create"}
-            </button>
-            <button
-              type="button"
-              onClick={() => router.push("/admin/dojos")}
-              className="border px-6 py-2"
-            >
+          <Textarea
+            label="Description"
+            rows={4}
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            placeholder="About this dojo..."
+          />
+          <div className="flex gap-3 pt-2">
+            <Button type="submit" variant="primary" size="md" loading={loading} icon={<Save />}>
+              Create
+            </Button>
+            <Button type="button" variant="outline" size="md" onClick={() => router.push("/admin/dojos")}>
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
       </div>
     </AdminLayout>
   );
 }
-
-

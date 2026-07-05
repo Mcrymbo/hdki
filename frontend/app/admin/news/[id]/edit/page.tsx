@@ -6,18 +6,28 @@ import { useQuery, useMutation } from "@apollo/client";
 import { GET_NEWS_ARTICLE } from "@/lib/graphql/queries";
 import { UPDATE_NEWS } from "@/lib/graphql/mutations";
 import AdminLayout from "@/components/admin/AdminLayout";
+import AccessDenied from "@/components/admin/ui/AccessDenied";
+import { useToast } from "@/components/admin/ui/Toast";
+import LoadingState from "@/components/ui/LoadingState";
+import { Input, Textarea } from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
+import { Save } from "lucide-react";
 
 export default function EditNewsPage() {
   const router = useRouter();
   const params = useParams();
   const { isAdmin } = useAuth();
+  const { toast } = useToast();
   const id = String(params?.id || "");
 
   const { data, loading: loadingQuery } = useQuery(GET_NEWS_ARTICLE, { variables: { id }, skip: !id });
   const [updateNews, { loading }] = useMutation(UPDATE_NEWS, {
-    onCompleted: () => { alert("Article updated"); router.push("/admin/news"); },
-    onError: (e) => alert(e.message),
+    onCompleted: () => {
+      toast("Article updated successfully", "success");
+      router.push("/admin/news");
+    },
+    onError: (e) => toast(e.message, "error"),
   });
 
   const [form, setForm] = useState({ title: "", content: "", coverImage: "", isPublished: false });
@@ -27,18 +37,20 @@ export default function EditNewsPage() {
   useEffect(() => {
     const art = data?.newsArticle;
     if (art) {
-      setForm({ title: art.title || "", content: art.content || "", coverImage: art.coverImage || "", isPublished: !!art.isPublished });
+      setForm({
+        title: art.title || "",
+        content: art.content || "",
+        coverImage: art.coverImage || "",
+        isPublished: !!art.isPublished,
+      });
     }
   }, [data]);
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Access Denied</h1>
-          <p className="text-gray-600">You need admin privileges to access this page.</p>
-        </div>
-      </div>
+      <AdminLayout>
+        <AccessDenied />
+      </AdminLayout>
     );
   }
 
@@ -57,37 +69,64 @@ export default function EditNewsPage() {
   };
 
   return (
-    <AdminLayout>
-      <div className="max-w-3xl mx-auto bg-white shadow p-6">
-        <h1 className="text-2xl font-light text-gray-900 mb-6">Edit Article</h1>
+    <AdminLayout
+      breadcrumbs={[
+        { label: "Dashboard", href: "/admin" },
+        { label: "News", href: "/admin/news" },
+        { label: "Edit" },
+      ]}
+    >
+      <div className="mx-auto max-w-3xl">
+        <h1 className="mb-6 font-display text-2xl font-medium text-hdki-ink">Edit Article</h1>
         {loadingQuery ? (
-          <div className="py-12 text-center">Loading...</div>
+          <LoadingState label="Loading article..." />
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5 rounded-sm border border-hdki-border bg-white p-6">
+            <Input
+              label="Title"
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              error={errors.title}
+            />
             <div>
-              <label className="block text-sm text-gray-700 mb-1">Title</label>
-              <input className="w-full border px-3 py-2" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-              {errors.title && <p className="text-sm text-red-600">{errors.title}</p>}
+              <Input
+                label="Cover Image URL"
+                value={form.coverImage}
+                onChange={(e) => setForm({ ...form, coverImage: e.target.value })}
+              />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                className="mt-2 block w-full text-sm text-hdki-gray-mid file:mr-3 file:rounded-sm file:border-0 file:bg-hdki-gray-light file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-hdki-ink hover:file:bg-hdki-border"
+              />
             </div>
-            <div>
-              <label className="block text-sm text-gray-700 mb-1">Cover Image URL</label>
-              <input className="w-full border px-3 py-2" value={form.coverImage} onChange={(e) => setForm({ ...form, coverImage: e.target.value })} />
-              <div className="mt-2">
-                <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm text-gray-700 mb-1">Content</label>
-              <textarea className="w-full border px-3 py-2" rows={8} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} />
-              {errors.content && <p className="text-sm text-red-600">{errors.content}</p>}
-            </div>
+            <Textarea
+              label="Content"
+              rows={8}
+              value={form.content}
+              onChange={(e) => setForm({ ...form, content: e.target.value })}
+              error={errors.content}
+            />
             <div className="flex items-center gap-2">
-              <input id="published" type="checkbox" checked={form.isPublished} onChange={(e) => setForm({ ...form, isPublished: e.target.checked })} />
-              <label htmlFor="published" className="text-sm text-gray-700">Published</label>
+              <input
+                id="published"
+                type="checkbox"
+                checked={form.isPublished}
+                onChange={(e) => setForm({ ...form, isPublished: e.target.checked })}
+                className="h-4 w-4 rounded-sm border-hdki-border text-hdki-red focus:ring-hdki-red/20"
+              />
+              <label htmlFor="published" className="text-sm text-hdki-ink">
+                Published
+              </label>
             </div>
-            <div className="flex gap-3">
-              <button type="submit" disabled={loading} className="bg-hdki-red hover:bg-hdki-red-dark text-white px-6 py-2 font-semibold disabled:opacity-60">{loading ? "Saving..." : "Save Changes"}</button>
-              <button type="button" onClick={() => router.push("/admin/news")} className="border px-6 py-2">Cancel</button>
+            <div className="flex gap-3 pt-2">
+              <Button type="submit" variant="primary" size="md" loading={loading} icon={<Save />}>
+                Save Changes
+              </Button>
+              <Button type="button" variant="outline" size="md" onClick={() => router.push("/admin/news")}>
+                Cancel
+              </Button>
             </div>
           </form>
         )}
@@ -95,8 +134,3 @@ export default function EditNewsPage() {
     </AdminLayout>
   );
 }
-
-
-
-
-
