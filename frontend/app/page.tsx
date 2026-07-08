@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import heroImg from "@/assets/images/im12.jpeg";
 import missionImg from "@/assets/images/im13.jpeg";
@@ -10,7 +11,33 @@ import IconCircle from "@/components/ui/IconCircle";
 import Card, { CardBody } from "@/components/ui/Card";
 import Reveal from "@/components/ui/Reveal";
 import CTABand from "@/components/ui/CTABand";
+import JsonLd from "@/components/seo/JsonLd";
+import { absoluteUrl } from "@/lib/seo/config";
 import { ArrowRight, MapPin, Users, Trophy, Star, Quote } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Shotokan Karate Classes in Kenya",
+  description:
+    "Train Shotokan karate with HDKI Kenya, the official Kenyan affiliate of HDKI International. Kids and adult karate classes, self-defence training, and dojos across Nairobi and Kenya.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    url: "/",
+    title: "HDKI Kenya | Shotokan Karate Classes & Dojos in Kenya",
+    description:
+      "Train Shotokan karate with HDKI Kenya, the official Kenyan affiliate of HDKI International. Kids and adult karate classes, self-defence training, and dojos across Nairobi and Kenya.",
+  },
+};
+
+const webPageSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "@id": absoluteUrl("/#webpage"),
+  url: absoluteUrl("/"),
+  name: "HDKI Kenya | Shotokan Karate Classes & Dojos in Kenya",
+  isPartOf: { "@id": absoluteUrl("/#website") },
+  about: { "@id": absoluteUrl("/#organization") },
+  inLanguage: "en-KE",
+};
 
 const features = [
   {
@@ -54,6 +81,7 @@ const testimonials = [
 export default function Index() {
   return (
     <Layout>
+      <JsonLd data={webPageSchema} />
       <HeroSection
         image={heroImg}
         eyebrow="HDKI Kenya"

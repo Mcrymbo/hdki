@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import heroImg from "@/assets/images/im3.jpeg";
 import storyImg from "@/assets/images/im8.jpeg";
@@ -8,7 +9,16 @@ import IconCircle from "@/components/ui/IconCircle";
 import Card, { CardBody } from "@/components/ui/Card";
 import Reveal from "@/components/ui/Reveal";
 import CTABand from "@/components/ui/CTABand";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { Calendar, Users, Trophy, Target, Heart, Globe, CheckCircle2 } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "About HDKI Kenya | Our Shotokan Karate History & Mission",
+  description:
+    "HDKI Kenya has trained Shotokan karateka nationwide since 2023, registered with the Kenya Karate Federation (KKF) and affiliated with HDKI International. Learn our history, mission, and training philosophy.",
+  alternates: { canonical: "/content/about" },
+  openGraph: { url: "/content/about", title: "About HDKI Kenya | Our Shotokan Karate History & Mission" },
+};
 
 const missionValues = [
   {
@@ -73,6 +83,7 @@ const specialPrograms = [
 export default function About() {
   return (
     <Layout>
+      <Breadcrumbs items={[{ name: "About", path: "/content/about" }]} />
       <HeroSection
         image={heroImg}
         eyebrow="About Us"
